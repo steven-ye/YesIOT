@@ -6,6 +6,9 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -20,6 +23,7 @@ import com.example.yesiot.TypeAdapter;
 import com.example.yesiot.helper.PanelHelper;
 import com.example.yesiot.object.Panel;
 import com.example.yesiot.util.Utils;
+import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class PanelFragment extends Fragment {
@@ -37,6 +41,9 @@ public class PanelFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        //在fragment中使用oncreateOptionsMenu时需要在onCrateView中添加此方法，否则不会调用
+        setHasOptionsMenu(true);
+
         View root = inflater.inflate(R.layout.fragment_panel, container, false);
         viewModel = new PanelViewModel(root);
 
@@ -60,28 +67,6 @@ public class PanelFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        viewModel.btn_okay.setOnClickListener(v->{
-            invalidateAll();
-            if(TextUtils.isEmpty(panel.name)){
-                viewModel.layout_name.setError("面板名称不能为空");
-                return;
-            }else if(panel.name.length()<4 || panel.name.length()>20){
-                viewModel.layout_name.setError("面板名称要求 4 - 20 个字符");
-                return;
-            }
-            if(TextUtils.isEmpty(panel.title)){
-                viewModel.layout_title.setError("面板不能为空");
-                return;
-            }
-
-            if(PanelHelper.save(panel)){
-                Navigation.findNavController(getView()).navigateUp();
-                Utils.showToast("保存成功");
-            }else{
-                Utils.showToast("保存失败");
-            }
-        });
-
         viewModel.expert_option.setOnClickListener(v->{
             viewModel.expert_option.toggle();
             if(viewModel.expert_option.isChecked()){
@@ -91,6 +76,19 @@ public class PanelFragment extends Fragment {
             }
         });
         viewModel.expert_option.callOnClick();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.save, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId()==R.id.action_save){
+            save();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public void addTextWatcher(){
@@ -143,13 +141,35 @@ public class PanelFragment extends Fragment {
         panel.off = viewModel.et_cmd_off.getText().toString();
     }
 
+    private void save(){
+        invalidateAll();
+        if(TextUtils.isEmpty(panel.name)){
+            viewModel.layout_name.setError("面板名称不能为空");
+            return;
+        }else if(panel.name.length()<4 || panel.name.length()>20){
+            viewModel.layout_name.setError("面板名称要求 4 - 20 个字符");
+            return;
+        }
+        if(TextUtils.isEmpty(panel.title)){
+            viewModel.layout_title.setError("面板不能为空");
+            return;
+        }
+
+        if(PanelHelper.save(panel)){
+            Navigation.findNavController(getView()).navigateUp();
+            Utils.showToast("保存成功");
+        }else{
+            Utils.showToast("保存失败");
+        }
+    }
+
     private void setTitle(String title) {
         MainActivity activity = (MainActivity) getActivity();
         activity.getSupportActionBar().setTitle(title);
     }
 
     static class EmptyTextWachter implements TextWatcher {
-        String message="";
+        String message;
         TextInputLayout textInputLayout;
         public EmptyTextWachter(TextInputLayout inputLayout,String error){
             textInputLayout = inputLayout;

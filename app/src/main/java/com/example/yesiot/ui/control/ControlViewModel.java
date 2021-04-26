@@ -12,14 +12,16 @@ import java.util.List;
 
 public class ControlViewModel extends ViewModel {
 
-    private final MutableLiveData<Boolean> mLocked = new MutableLiveData<>();
-    private final MutableLiveData<String> mCloud = new MutableLiveData<>();
-    private final MutableLiveData<List<Panel>> mList = new MutableLiveData<>();
+    final MutableLiveData<Boolean> mLocked = new MutableLiveData<>();
+    final MutableLiveData<String> mCloud = new MutableLiveData<>();
+    final MutableLiveData<List<Panel>> mList = new MutableLiveData<>();
+    final MutableLiveData<Integer> mOption = new MutableLiveData<>();
 
     public ControlViewModel() {
         mLocked.setValue(true);
         mCloud.setValue("unknown");
         mList.setValue(new ArrayList<>());
+        mOption.setValue(0);
     }
 
     public LiveData<Boolean> getLocked() {
@@ -39,5 +41,14 @@ public class ControlViewModel extends ViewModel {
     }
     public void setListValue(List<Panel> list) {
         mList.postValue(list);
+    }
+    public LiveData<Integer> getOption() {
+        return mOption;
+    }
+    public int getOptionValue() {
+        return mOption.getValue();
+    }
+    public void setOptionValue(int val) {
+        mOption.setValue(val);
     }
 }

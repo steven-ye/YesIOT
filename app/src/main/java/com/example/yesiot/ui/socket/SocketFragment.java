@@ -27,7 +27,7 @@ import com.example.yesiot.util.Utils;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-public class SocketFragment extends Fragment implements TcpClient.OnDataReceiveListener {
+public class SocketFragment extends Fragment implements TcpClient.TcpCallback {
 
     private SocketViewModel viewModel;
     TcpClient client;
@@ -42,7 +42,7 @@ public class SocketFragment extends Fragment implements TcpClient.OnDataReceiveL
         View root = inflater.inflate(R.layout.fragment_socket, container, false);
 
         client = TcpClient.getInstance();
-        client.setOnDataReceiveListener(this);
+        client.setCallback(this);
         findViews(root);
         return root;
     }
@@ -60,7 +60,7 @@ public class SocketFragment extends Fragment implements TcpClient.OnDataReceiveL
         final TextInputLayout layoutPort = root.findViewById(R.id.layout_tcp_port);
         final TextInputEditText et_ip = root.findViewById(R.id.tcp_ip);
         final TextInputEditText et_port = root.findViewById(R.id.tcp_port);
-        Button btn_clear = root.findViewById(R.id.tcp_button_clear);;
+        Button btn_clear = root.findViewById(R.id.tcp_button_clear);
         cb_url = root.findViewById(R.id.tcp_option_url);
         cb_hex = root.findViewById(R.id.tcp_option_hex);
         cb_ln = root.findViewById(R.id.tcp_option_ln);
@@ -72,9 +72,7 @@ public class SocketFragment extends Fragment implements TcpClient.OnDataReceiveL
         btn_send = root.findViewById(R.id.tcp_button_send);
 
         //设置默认滚动到底部
-        scrollView.post(() -> {
-            scrollView.fullScroll(ScrollView.FOCUS_DOWN);
-        });
+        scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN));
 
         et_ip.addTextChangedListener(new TextWatcher() {
             @Override
@@ -120,25 +118,20 @@ public class SocketFragment extends Fragment implements TcpClient.OnDataReceiveL
         });
 
         //socket send
-        btn_send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String msg = et_message.getText().toString();
-                if (TextUtils.isEmpty(msg)){
-                    Utils.showToast("请输入发送内容");
-                    return;
-                }
-                if (client.isConnect()) {
-                    sendMsg(msg);
-                }else{
-                    Utils.showToast("尚未连接，请连接Socket");
-                }
+        btn_send.setOnClickListener(v -> {
+            String msg = et_message.getText().toString();
+            if (TextUtils.isEmpty(msg)){
+                Utils.showToast("请输入发送内容");
+                return;
+            }
+            if (client.isConnect()) {
+                sendMsg(msg);
+            }else{
+                Utils.showToast("尚未连接，请连接Socket");
             }
         });
 
-        btn_clear.setOnClickListener(V->{
-            tv_logger.setText("");
-        });
+        btn_clear.setOnClickListener(V-> tv_logger.setText(""));
 
         cb_url.setOnClickListener(v->{
             if(cb_hex.isChecked()){
@@ -167,9 +160,7 @@ public class SocketFragment extends Fragment implements TcpClient.OnDataReceiveL
         tv_logger.append(message+"\n");
         //scrollView.fullScroll(ScrollView.FOCUS_DOWN);
         //设置默认滚动到底部
-        scrollView.post(() -> {
-            scrollView.fullScroll(ScrollView.FOCUS_DOWN);
-        });
+        scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN));
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")

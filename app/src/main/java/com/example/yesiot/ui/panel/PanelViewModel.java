@@ -5,8 +5,10 @@ import android.widget.Button;
 import android.widget.CheckedTextView;
 
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
 import com.example.yesiot.R;
+import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -27,7 +29,6 @@ class PanelViewModel {
     final TextInputEditText et_height;
     final CheckedTextView expert_option;
     final View row_expert_option;
-    final Button btn_okay;
 
     public PanelViewModel(View root){
         recyclerView = root.findViewById(R.id.rv_panel_type);
@@ -46,6 +47,5 @@ class PanelViewModel {
         et_height = root.findViewById(R.id.panel_height);
         expert_option = root.findViewById(R.id.expert_option);
         row_expert_option = root.findViewById(R.id.row_expert_option);
-        btn_okay = root.findViewById(R.id.button_okay);
     }
 }

@@ -53,11 +53,11 @@ public class PanelLayout extends LinearLayout {
                 viewHolder.textWrapper.setVisibility(GONE);
                 break;
             case TYPE_HORIZONTAL:
-                mView = (LinearLayout)LayoutInflater.from(context).inflate(R.layout.layout_panel,null);
+                mView = (LinearLayout)LayoutInflater.from(context).inflate(R.layout.layout_panel_horizontal,null);
                 viewHolder = new ViewHolder(mView);
                 if(panel.height==0)height = 100;
-                params = new LinearLayout.LayoutParams(height, height);
-                viewHolder.imageView.setLayoutParams(params);
+                //params = new LinearLayout.LayoutParams(height, height);
+                //viewHolder.imageView.setLayoutParams(params);
                 setTitle(panel.title);
                 setText(panel.unit);
                 break;

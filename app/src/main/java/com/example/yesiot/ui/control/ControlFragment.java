@@ -2,6 +2,8 @@ package com.example.yesiot.ui.control;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.text.TextUtils;
@@ -19,7 +21,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
-import com.example.yesiot.PanelView;
 import com.example.yesiot.R;
 import com.example.yesiot.DragLayout;
 import com.example.yesiot.MainActivity;
@@ -33,7 +34,9 @@ import com.example.yesiot.object.Device;
 import com.example.yesiot.object.Panel;
 import com.example.yesiot.service.MQTTConnection;
 import com.example.yesiot.service.MQTTService;
+import com.example.yesiot.service.TcpClient;
 import com.example.yesiot.util.Utils;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +44,12 @@ import java.util.List;
 public class ControlFragment extends Fragment implements MQTTService.MQTTCallBack {
     final String TAG = "ControlFragment";
     ControlViewModel viewModel;
-    private MainActivity mActivity;
+    MainActivity mActivity;
     DragLayout dragLayout;
     List<PanelLayout> layouts = new ArrayList<>();
     Device device;
     MQTTConnection mqttConnection;
+    TabLayout tabLayout;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -73,16 +77,31 @@ public class ControlFragment extends Fragment implements MQTTService.MQTTCallBac
             }
         });
 
-        viewModel.getList().observe(getViewLifecycleOwner(), new Observer<List<Panel>>() {
+        viewModel.getList().observe(getViewLifecycleOwner(), panels -> {
+            dragLayout.removeAllViews();
+            for(Panel panel: panels){
+                addPanelLayout(panel);//订阅自定义subscripe
+                if(TextUtils.isEmpty(panel.sub))continue;
+                MQTTService.subscribe(panel.sub,2);
+                MQTTService.publish(getTopic(device,"cmd"),"status,"+panel.on);
+            }
+        });
+
+        tabLayout = root.findViewById(R.id.tab_layout);
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onChanged(List<Panel> panels) {
-                dragLayout.removeAllViews();
-                for(Panel panel: panels){
-                    addPanelLayout(panel);//订阅自定义subscripe
-                    if(TextUtils.isEmpty(panel.sub))continue;
-                    MQTTService.subscribe(panel.sub,2);
-                    MQTTService.publish(getTopic(device,"cmd"),"status,"+panel.on);
-                }
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewModel.setOptionValue(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
             }
         });
 
@@ -95,6 +114,8 @@ public class ControlFragment extends Fragment implements MQTTService.MQTTCallBac
     @Override
     public void onStart() {
         super.onStart();
+        startTcpConnect();
+        tabLayout.getTabAt(viewModel.getOptionValue()).select();
 
         if(TextUtils.isEmpty(device.getSub())){
             device.setSub(getTopic(device,"status"));
@@ -157,13 +178,18 @@ public class ControlFragment extends Fragment implements MQTTService.MQTTCallBac
     }
 
     public void sendMessage(Panel panel){
-        if(!(mqttConnection.getMqttCallBack() instanceof ControlFragment)){
-            mqttConnection.setMqttCallBack(this);
-        }
         panel.state = !panel.state;
         String message = panel.state ? panel.on : panel.off;
         if (TextUtils.isEmpty(message)) message = panel.payload;
         if (TextUtils.isEmpty(message)) return;
+
+        if(viewModel.getOptionValue()>0){
+            tcpClient.send(message);
+            return;
+        }
+        if(!(mqttConnection.getMqttCallBack() instanceof ControlFragment)){
+            mqttConnection.setMqttCallBack(this);
+        }
         String topic = panel.topic;
         if(TextUtils.isEmpty(topic)){
             topic = getTopic(device, "cmd");
@@ -242,8 +268,11 @@ public class ControlFragment extends Fragment implements MQTTService.MQTTCallBac
         if(message.equals(""))return;
         String regex = Utils.getRegexBySub(device.getSub());
         if(topic.matches(regex)){
-            if(message.equals("online")||message.equals("offline"))
+            if(message.equals("online")||message.equals("offline")){
                 viewModel.setCloud(message);
+                return;
+            }
+
         }
 
         for(PanelLayout panelLayout: layouts){
@@ -255,4 +284,53 @@ public class ControlFragment extends Fragment implements MQTTService.MQTTCallBac
             }
         }
     }
+
+    TcpClient tcpClient;
+    boolean reconnect = false;
+    private void startTcpConnect() {
+        tcpClient = TcpClient.getInstance();
+        tcpClient.connect(device.getIp(),80);
+        tcpClient.setCallback(tcpCallback);
+        Log.i(TAG,"Start TCP connection");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        tcpClient.disconnect();
+        tcpClient.setCallback(null);
+    }
+
+    TcpClient.TcpCallback tcpCallback = new TcpClient.TcpCallback() {
+        @Override
+        public void onConnectSuccess(String ip, int port) {
+            Utils.showToast("TCP Connected: "+ ip+":"+port);
+            Log.e(TAG, "TCP Connected: "+ ip+":"+port);
+            tcpClient.send("status");
+            reconnect = true;
+        }
+
+        @Override
+        public void onConnectFail(String ip, int port) {
+            Utils.showToast("TCP Disconnected");
+            Log.e(TAG,"TCP Disconnected");
+            if(reconnect) tcpClient.connect(ip,port);
+        }
+
+        @Override
+        public void onDataReceived(String message, int requestCode) {
+            message = message.trim();
+            //Utils.showToast("TCP message received: " + message);
+            Log.e(TAG,"TCP >> " + message);
+            for(PanelLayout panelLayout: layouts){
+                Panel panel = panelLayout.getPanel();
+                //Log.e(TAG,"Panel.on >> " + panel.on);
+                if(message.equals(panel.on)){
+                    panelLayout.setState("on");
+                }else if(message.equals(panel.off)){
+                    panelLayout.setState("off");
+                }
+            }
+        }
+    };
 }

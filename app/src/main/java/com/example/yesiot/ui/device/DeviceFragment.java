@@ -7,6 +7,9 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -22,6 +25,7 @@ import com.example.yesiot.R;
 import com.example.yesiot.helper.DeviceHelper;
 import com.example.yesiot.object.Device;
 import com.example.yesiot.util.Utils;
+import com.google.android.material.textfield.TextInputLayout;
 
 public class DeviceFragment extends Fragment {
 
@@ -29,40 +33,14 @@ public class DeviceFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        //在fragment中使用oncreateOptionsMenu时需要在onCrateView中添加此方法，否则不会调用
+        setHasOptionsMenu(true);
         View root = inflater.inflate(R.layout.fragment_device, container, false);
         viewModel = new DeviceViewModel(root);
 
-        viewModel.et_name.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        viewModel.et_name.addTextChangedListener(new EmptyTextWachter(viewModel.layout_name, "设备名称不能为空"));
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                viewModel.layout_name.setError("");
-            }
-        });
-
-        viewModel.et_code.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                viewModel.layout_code.setError("");
-            }
-        });
+        viewModel.et_code.addTextChangedListener(new EmptyTextWachter(viewModel.layout_code, "设备ID不能为空"));
 
         viewModel.device_image.setOnClickListener(v->{
             ImageView iv = (ImageView) v;
@@ -73,28 +51,6 @@ public class DeviceFragment extends Fragment {
                 viewModel.setImage(path);
                 iv.setImageDrawable(imageView.getDrawable());
             });
-        });
-        viewModel.btn_okay.setOnClickListener(v->{
-            viewModel.invalidateAll();
-            Device device = viewModel.getDevice();
-            if(TextUtils.isEmpty(device.getName())){
-                viewModel.layout_name.setError("设备名称不能为空");
-                return;
-            }else if(device.getName().length()<4 || device.getName().length()>20){
-                viewModel.layout_name.setError("设备名称要求 6 - 20 个字符");
-                return;
-            }
-            if(TextUtils.isEmpty(device.getCode())){
-                viewModel.layout_code.setError("设备ID不能为空");
-                return;
-            }
-
-            if(DeviceHelper.save(viewModel.getDevice())){
-                Navigation.findNavController(getView()).navigateUp();
-                Utils.showToast("保存成功");
-            }else{
-                Utils.showToast("保存失败");
-            }
         });
 
         viewModel.device_option.setOnClickListener(v->{
@@ -123,8 +79,69 @@ public class DeviceFragment extends Fragment {
         return root;
     }
 
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.save, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId()==R.id.action_save){
+            save();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void save(){
+        viewModel.invalidateAll();
+        Device device = viewModel.getDevice();
+        if(TextUtils.isEmpty(device.getName())){
+            viewModel.layout_name.setError("设备名称不能为空");
+            return;
+        }else if(device.getName().length()<4 || device.getName().length()>20){
+            viewModel.layout_name.setError("设备名称要求 6 - 20 个字符");
+            return;
+        }
+        if(TextUtils.isEmpty(device.getCode())){
+            viewModel.layout_code.setError("设备ID不能为空");
+            return;
+        }
+
+        if(DeviceHelper.save(viewModel.getDevice())){
+            Navigation.findNavController(getView()).navigateUp();
+            Utils.showToast("保存成功");
+        }else{
+            Utils.showToast("保存失败");
+        }
+    }
+
     private void setTitle(String title) {
         MainActivity activity = (MainActivity) getActivity();
         activity.getSupportActionBar().setTitle(title);
+    }
+
+    static class EmptyTextWachter implements TextWatcher {
+        String message;
+        TextInputLayout textInputLayout;
+        public EmptyTextWachter(TextInputLayout inputLayout,String error){
+            textInputLayout = inputLayout;
+            message = error;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            String error = TextUtils.isEmpty(s) ? message : "";
+            textInputLayout.setError(error);
+        }
     }
 }

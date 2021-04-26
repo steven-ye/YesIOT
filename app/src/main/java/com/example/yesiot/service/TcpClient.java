@@ -283,16 +283,16 @@ public class TcpClient {
             switch(msg.what){
                 //connect error
                 case -1:
-                    if (null != onDataReceiveListener) {
-                        onDataReceiveListener.onConnectFail(ip,port);
+                    if (null != tcpCallback) {
+                        tcpCallback.onConnectFail(ip,port);
                         disconnect();
                     }
                     break;
 
                 //connect success
                 case 1:
-                    if (null != onDataReceiveListener) {
-                        onDataReceiveListener.onConnectSuccess(ip,port);
+                    if (null != tcpCallback) {
+                        tcpCallback.onConnectSuccess(ip,port);
                     }
                     break;
 
@@ -302,8 +302,8 @@ public class TcpClient {
                     int requestCode = bundle.getInt("requestCode");
                     String message = new String(buffer, StandardCharsets.UTF_8);
 
-                    if (null != onDataReceiveListener) {
-                        onDataReceiveListener.onDataReceived(message,requestCode);
+                    if (null != tcpCallback) {
+                        tcpCallback.onDataReceived(message,requestCode);
                     }
                     break;
             }
@@ -314,15 +314,15 @@ public class TcpClient {
     /**
      * socket response data listener
      * */
-    private OnDataReceiveListener onDataReceiveListener = null;
+    private TcpCallback tcpCallback;
     private int requestCode = -1;
-    public interface OnDataReceiveListener {
-        public void onConnectSuccess(String ip, int port);
-        public void onConnectFail(String ip, int port);
-        public void onDataReceived(String message, int requestCode);
-        //public void onDataReceived(byte[] buffer, int size, int requestCode);
+    public interface TcpCallback {
+        void onConnectSuccess(String ip, int port);
+        void onConnectFail(String ip, int port);
+        void onDataReceived(String message, int requestCode);
+        //void onDataReceived(byte[] buffer, int size, int requestCode);
     }
-    public void setOnDataReceiveListener(OnDataReceiveListener dataReceiveListener) {
-        onDataReceiveListener = dataReceiveListener;
+    public void setCallback(TcpCallback callback) {
+        tcpCallback = callback;
     }
 }

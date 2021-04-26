@@ -8,6 +8,24 @@
     android:id="@+id/main_panels"
     tools:context=".ui.control.ControlFragment">
 
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_grey_light"
+        app:tabSelectedTextColor="@android:color/holo_blue_dark"
+        app:tabIndicatorColor="@android:color/holo_blue_dark">
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/option_mqtt"/>
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/option_tcp"/>
+    </com.google.android.material.tabs.TabLayout>
+
     <com.example.yesiot.DragLayout
         android:id="@+id/dragLayout"
         android:layout_width="match_parent"

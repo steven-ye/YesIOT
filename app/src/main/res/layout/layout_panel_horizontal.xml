@@ -7,14 +7,17 @@
 
     <ImageView
         android:id="@+id/panel_image"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
         android:src="@drawable/ic_baseline_power_settings_new_24" />
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
+        android:paddingStart="0dp"
+        android:paddingEnd="5dp"
         android:orientation="vertical">
 
         <TextView
@@ -22,14 +25,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="普通面板"
-            android:textSize="20sp" />
+            android:textSize="16sp" />
         <TextView
             android:id="@+id/panel_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/light_grey"
             android:text="开关面板"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
 
     </LinearLayout>
 </LinearLayout>

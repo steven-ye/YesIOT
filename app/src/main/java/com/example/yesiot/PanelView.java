@@ -46,7 +46,7 @@ public class PanelView extends LinearLayout {
         int resId;
         switch(mType){
             case TYPE_HORIZONTAL:
-                resId = R.layout.layout_panel;
+                resId = R.layout.layout_panel_horizontal;
                 break;
             case TYPE_SWITCH:
                 resId = R.layout.layout_panel_switch;

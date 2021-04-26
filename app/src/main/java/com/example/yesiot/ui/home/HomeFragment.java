@@ -37,6 +37,7 @@ import com.example.yesiot.dialog.DeviceDialog;
 import com.example.yesiot.service.TcpClient;
 import com.example.yesiot.util.LoadingDialog;
 import com.example.yesiot.util.Utils;
+import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 
@@ -128,13 +129,13 @@ public class HomeFragment extends Fragment implements MQTTService.MQTTCallBack {
 
     @Override
     public void onStart() {
+        super.onStart();
         mqttConnection = MQTTConnection.getInstance();
         mqttConnection.setMqttCallBack(this);
         if(MQTTService.isConnected()){
             homeViewModel.setCloud("online");
         }
         getDeviceList();
-        super.onStart();
     }
 
     private void getDeviceList(){
@@ -205,7 +206,7 @@ public class HomeFragment extends Fragment implements MQTTService.MQTTCallBack {
                 Log.v(TAG,"Scanned IP >> "+ip);
                 TcpClient client = new TcpClient();
                 //client.setOnDataReceiveListener(onDataReceiveListener);
-                client.setOnDataReceiveListener(new TcpClient.OnDataReceiveListener() {
+                client.setCallback(new TcpClient.TcpCallback() {
                     @Override
                     public void onConnectSuccess(String ip, int port) {
                         Log.v(TAG,"Socket Connected >> "+ip+":"+port);

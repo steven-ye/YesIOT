@@ -75,6 +75,21 @@
                     android:hint="@string/device_theme" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_device_ip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                app:counterMaxLength="50">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/device_ip"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:hint="@string/device_ip" />
+            </com.google.android.material.textfield.TextInputLayout>
+
             <CheckedTextView
                 android:id="@+id/device_option"
                 android:layout_width="match_parent"
@@ -139,16 +154,6 @@
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
-            <Button
-                android:id="@+id/button_okay"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="25dp"
-                android:layout_marginBottom="10dp"
-                android:background="#3c8dc4"
-                android:text="@string/save"
-                android:textColor="#ffffff"
-                android:textSize="20sp" />
         </LinearLayout>
     </ScrollView>
 

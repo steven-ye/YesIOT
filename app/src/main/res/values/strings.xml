@@ -38,6 +38,10 @@
     <string name="online">在线</string>
     <string name="offline">离线</string>
 
+    <!-- home_fragment -->
+    <string name="option_mqtt">MQTT</string>
+    <string name="option_tcp">TCP</string>
+
     <!-- Fragment Broker -->
     <string name="broker_name">连接名称</string>
     <string name="broker_port">端口号</string>
@@ -62,6 +66,7 @@
     <string name="device_status">设备状态</string>
     <string name="device_type">设备类型</string>
     <string name="device_theme">设备场景</string>
+    <string name="device_ip">IP地址</string>
     <string name="device_sub_topic">接收主题</string>
     <string name="device_topic">发送主题</string>
     <string name="device_payload">发送载荷</string>

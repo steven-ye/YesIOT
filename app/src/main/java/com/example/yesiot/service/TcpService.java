@@ -12,21 +12,24 @@ import android.util.Log;
 public class TcpService extends Service {
     String TAG = "TcpService";
 
-    private TcpClient client;
-    private TcpCallback tcpCallback;
+    private static TcpClient client;
+    TcpClient.TcpCallback tcpCallback;
 
     @Override
     public void onCreate() {
         super.onCreate();
         client = TcpClient.getInstance();
-        client.setOnDataReceiveListener(dataReceiveListener);
     }
 
     private void connect(String ip, int port){
-        Log.i(TAG,"TCP server is "+ip+":"+port);
+        Log.i(TAG,"Start TCP connecting to "+ip+":"+port);
         if(isConnectIsNormal()){
             client.connect(ip,port);
         }
+    }
+
+    public TcpClient getClient(){
+        return client;
     }
 
     public void send(String msg){
@@ -51,33 +54,6 @@ public class TcpService extends Service {
             return false;
         }
     }
-
-    private final TcpClient.OnDataReceiveListener dataReceiveListener = new TcpClient.OnDataReceiveListener() {
-        @Override
-        public void onConnectSuccess(String ip, int port) {
-            Log.v(TAG, "连接到 >> "+ip+":"+port + " 成功");
-            if(tcpCallback != null){
-                tcpCallback.onConnectionSuccess(ip,port);
-            }
-        }
-
-        @Override
-        public void onConnectFail(String ip, int port) {
-            Log.e(TAG, "连接到 >> "+ip+":"+port + " 失败");
-            if(tcpCallback != null){
-                tcpCallback.onConnectionFail();
-            }
-        }
-
-        @Override
-        public void onDataReceived(String message, int requestCode) {
-            Log.v(TAG, "== 收到消息 == ");
-            Log.v(TAG, message);
-            if(tcpCallback != null){
-                tcpCallback.onDataReceived(message,requestCode);
-            }
-        }
-    };
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -104,7 +80,7 @@ public class TcpService extends Service {
         super.onDestroy();
     }
 
-    public void setTcpCallback(TcpService.TcpCallback callBack){
+    public void setTcpCallback(TcpClient.TcpCallback callBack){
         tcpCallback = callBack;
     }
 
@@ -112,11 +88,5 @@ public class TcpService extends Service {
         public TcpService getService(){
             return TcpService.this;
         }
-    }
-
-    public interface TcpCallback {
-        void onConnectionSuccess(String ip, int port);
-        void onConnectionFail();
-        void onDataReceived(String message, int requestCode);
     }
 }
