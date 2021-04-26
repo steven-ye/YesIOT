@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.yesiot.ui.home.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_setting"
+        android:name="com.example.yesiot.ui.broker.BrokerFragment"
+        android:label="@string/menu_setting"
+        tools:layout="@layout/fragment_broker"/>
+    <fragment
+        android:id="@+id/nav_device"
+        android:name="com.example.yesiot.ui.device.DeviceFragment"
+        android:label="@string/menu_add_device"
+        tools:layout="@layout/fragment_device"/>
+    <fragment
+        android:id="@+id/nav_esptouch"
+        android:name="com.example.esptouch.v1.EspTouchFragment"
+        android:label="@string/menu_esptouch"
+        tools:layout="@layout/fragment_esptouch" />
+    <fragment
+        android:id="@+id/nav_socket"
+        android:name="com.example.yesiot.ui.socket.SocketFragment"
+        android:label="@string/menu_socket"
+        tools:layout="@layout/fragment_socket" />
+    <fragment
+        android:id="@+id/nav_about"
+        android:name="com.example.yesiot.ui.about.AboutFragment"
+        android:label="@string/menu_about"
+        tools:layout="@layout/fragment_about" />
+
+    <fragment
+        android:id="@+id/nav_control"
+        android:name="com.example.yesiot.ui.control.ControlFragment"
+        android:label="@string/nav_control"
+        tools:layout="@layout/fragment_control"/>
+    <fragment
+        android:id="@+id/nav_panel"
+        android:name="com.example.yesiot.ui.panel.PanelFragment"
+        android:label="@string/nav_panel"
+        tools:layout="@layout/fragment_control"/>
+</navigation>

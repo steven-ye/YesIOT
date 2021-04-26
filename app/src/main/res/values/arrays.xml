@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="device_types">
+        <item>开关</item>
+        <item>插座</item>
+        <item>智能灯</item>
+        <item>智能盒</item>
+        <item>综合类</item>
+    </string-array>
+    <string-array name="protocol_labels">
+        <item>TCP</item>
+        <item>TCP(SSL)</item>
+        <item>Websocket</item>
+        <item>Websocket(SSL)</item>
+    </string-array>
+    <string-array name="protocol_values">
+        <item>tcp</item>
+        <item>ssl</item>
+        <item>ws</item>
+        <item>wss</item>
+    </string-array>
+</resources>

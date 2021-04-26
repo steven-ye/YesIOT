@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:padding="10dp"
+    android:orientation="vertical"
+    tools:context=".dialog.DeviceDialog">
+
+    <Button
+        android:id="@+id/add_device"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/selector_blue"
+        android:textColor="@color/white"
+        android:text="手动添加"/>
+
+    <Button
+        android:id="@+id/scan_device"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/selector_blue"
+        android:textColor="@color/white"
+        android:text="自动添加"/>
+</LinearLayout>

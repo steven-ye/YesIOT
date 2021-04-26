@@ -1,0 +1,167 @@
+<resources>
+    <string name="app_name">掌控智能</string>
+    <string name="app_version">0.1.0</string>
+    <string name="app_author">Steven Ye &lt;steven_ye@126.com&gt;</string>
+    <string name="app_copyright">版权所有 &#169;2021</string>
+    <string name="app_date">2021年4月18日</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Steven Ye</string>
+    <string name="nav_header_subtitle">steven_ye@foxmail.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">我的设备</string>
+    <string name="menu_setting">连接设置</string>
+    <string name="menu_esptouch">智能配网</string>
+    <string name="menu_scan_device">扫描设备</string>
+    <string name="menu_add_device">添加设备</string>
+    <string name="menu_socket">TCP调试</string>
+    <string name="menu_about">关于APP</string>
+    <string name="nav_control">{title}</string>
+    <string name="nav_panel">{title}</string>
+
+    <string name="action_lock">锁定</string>
+    <string name="action_unlock">打开</string>
+    <string name="action_cloud">状态</string>
+    <string name="action_cloud_done">在线</string>
+    <string name="action_cloud_fail">离线</string>
+
+    <string name="okay">确定</string>
+    <string name="cancel">取消</string>
+    <string name="edit">编辑</string>
+    <string name="delete">删除</string>
+    <string name="save">保存</string>
+    <string name="lastwill">遗嘱</string>
+    <string name="topic">主题</string>
+    <string name="message">消息</string>
+    <string name="online">在线</string>
+    <string name="offline">离线</string>
+
+    <!-- Fragment Broker -->
+    <string name="broker_name">连接名称</string>
+    <string name="broker_port">端口号</string>
+    <string name="broker_ip">Web/IP地址</string>
+    <string name="broker_protocol">网络协议</string>
+    <string name="broker_clientid">客户端ID</string>
+    <string name="broker_username">用户账号</string>
+    <string name="broker_password">登录密码</string>
+    <string name="broker_timeout">连接超时</string>
+    <string name="broker_alive">保持运行</string>
+    <string name="broker_name_hint">名称不允许重复或留空</string>
+    <string name="broker_clientid_hint">留空则自动生成</string>
+    <string name="broker_ip_hint">192.168.1.2</string>
+    <string name="checkbox_auto">断线重连</string>
+    <string name="checkbox_notice">断线通知</string>
+
+    <!-- fragment_device -->
+    <string name="device_name">设备名称</string>
+    <string name="device_code">设备ID</string>
+    <string name="device_title">设备标题</string>
+    <string name="device_image">设备图片</string>
+    <string name="device_status">设备状态</string>
+    <string name="device_type">设备类型</string>
+    <string name="device_theme">设备场景</string>
+    <string name="device_sub_topic">接收主题</string>
+    <string name="device_topic">发送主题</string>
+    <string name="device_payload">发送载荷</string>
+    <string name="device_not_exist">设备不存在</string>
+    <string name="expert_option">高级选项</string>
+    <string name="option_notice">以下内容, 在控制其他设备时才需要填写</string>
+
+    <!-- fragment_panel -->
+    <string name="panel_title">面板文字</string>
+    <string name="panel_name">面板名称</string>
+    <string name="panel_image">面板图片</string>
+    <string name="panel_type">面板类型</string>
+    <string name="panel_width">面板宽度</string>
+    <string name="panel_height">面板高度</string>
+    <string name="panel_topic">发送主题</string>
+    <string name="panel_payload">发送载荷</string>
+    <string name="panel_cmd_on">状态 ON</string>
+    <string name="panel_cmd_off">状态 OFF</string>
+    <string name="panel_sub">接收主题</string>
+    <string name="panel_state">面板状态</string>
+    <string name="panel_text">开关按钮</string>
+    <string name="panel_unit">面板说明</string>
+
+    <!-- fragment_socket -->
+    <string name="tcp_app_title">TCP 调试</string>
+    <string name="tcp_default_ip">192.168.1.2</string>
+    <string name="tcp_hint_ip">IP 地址</string>
+    <string name="tcp_hint_port">端口号</string>
+    <string name="tcp_option_url">网址</string>
+    <string name="tcp_option_hex">16进制</string>
+    <string name="tcp_option_ln">加换行符</string>
+    <string name="tcp_button_connect">连接</string>
+    <string name="tcp_button_disconnect">断开</string>
+    <string name="tcp_button_clear">清除内容</string>
+    <string name="tcp_button_send">发送</string>
+    <string name="tcp_connect_done">TCP连接成功</string>
+    <string name="tcp_connect_fail">TCP连接已断开</string>
+
+    <!-- SmartRefreshLayout -->
+    <string name="srl_header_pulling">下拉可以刷新</string>
+    <string name="srl_header_refreshing">正在刷新…</string>
+    <string name="srl_header_loading">正在加载…</string>
+    <string name="srl_header_release">释放立即刷新</string>
+    <string name="srl_header_finish">刷新完成</string>
+    <string name="srl_header_failed">刷新失败</string>
+    <string name="srl_header_update">上次更新 M-d HH:mm</string>
+    <string name="srl_header_secondary">释放进入二楼</string>
+
+    <string name="srl_footer_pulling">上拉加载更多</string>
+    <string name="srl_footer_release">释放立即加载</string>
+    <string name="srl_footer_loading">正在加载…</string>
+    <string name="srl_footer_refreshing">正在刷新…</string>
+    <string name="srl_footer_finish">加载完成</string>
+    <string name="srl_footer_failed">加载失败</string>
+    <string name="srl_footer_nothing">没有更多数据了</string>
+
+    <!-- activity_esptouch -->
+    <string name="esptouch_message_permission">需要位置权限来获取 Wi-Fi 信息。 \n点击申请权限</string>
+    <string name="esptouch_message_location">请打开 GPS 以获取 Wi-Fi 信息。</string>
+    <string name="esptouch_message_wifi_connection">请先连上 Wi-Fi</string>
+    <string name="esptouch_message_wifi_frequency">当前连接的是 5G Wi-Fi, 设备仅支持 2.4G Wi-Fi</string>
+
+    <string name="esptouch1_title">EspTouch</string>
+    <string name="esptouch1_about_version">EspTouch 版本: %s</string>
+    <string name="esptouch1_head_title">智能配网</string>
+    <string name="esptouch1_ssid_title">SSID: </string>
+    <string name="esptouch1_bssid_title">BSSID: </string>
+    <string name="esptouch1_password_title">密码: </string>
+    <string name="esptouch1_device_count_title">设备数量: </string>
+    <string name="esptouch1_package_broadcast">广播</string>
+    <string name="esptouch1_package_multicast">组播</string>
+    <string name="esptouch1_confirm">确认</string>
+    <string name="esptouch1_wifi_5g_message">设备不支持 5G Wi-Fi, 请确认当前连接的 Wi-Fi 为 2.4G, 或者您可以尝试选择组播</string>
+    <string name="esptouch1_location_permission_title">⚠️警告️</string>
+    <string name="esptouch1_location_permission_message">在 Android M 及以上版本，如果您禁止授权位置权限，APP将无法获取 Wi-Fi 信息。</string>
+    <string name="esptouch1_configure_wifi_change_message">Wi-Fi 已断开或发生了变化</string>
+    <string name="esptouch1_configuring_message">Esptouch 正在执行配网, 请稍等片刻…</string>
+    <string name="esptouch1_configure_result_failed">EspTouch 配网失败</string>
+    <string name="esptouch1_configure_result_failed_port">建立 EspTouch 任务失败, 端口可能被其他程序占用</string>
+    <string name="esptouch1_configure_result_success">EspTouch 完成</string>
+    <string name="esptouch1_configure_result_success_item">BSSID: %1$s, 地址: %2$s</string>
+
+
+    <string name="esptouch_menu_item_about">关于 App</string>
+    <string name="esptouch_about_version">App 版本: %s</string>
+
+    <string name="esptouch2_title">EspTouch V2</string>
+    <string name="esptouch2_about_version">EspTouch V2 版本: %s</string>
+    <string name="esptouch2_ssid_label">SSID: </string>
+    <string name="esptouch2_bssid_label">BSSID: </string>
+    <string name="esptouch2_ip_label">IP: </string>
+    <string name="esptouch2_password_label">密码</string>
+    <string name="esptouch2_aes_key">AES Key</string>
+    <string name="esptouch2_aes_key_error">AES Key 必须为空或者16字节数据</string>
+    <string name="esptouch2_custom_data">自定义数据</string>
+    <string name="esptouch2_custom_data_error">自定义数据不能超过127字节</string>
+
+    <string name="esptouch2_provision_title">配网</string>
+    <string name="esptouch2_provision_stop">停止</string>
+    <string name="esptouch2_provision_result_exception">捕获到错误：%s</string>
+    <string name="esptouch2_provision_result_none">没有找到设备</string>
+    <string name="title_add_device">添加设备</string>
+</resources>
