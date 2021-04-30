@@ -25,12 +25,14 @@ public class TcpClient {
     /**
      * single instance TcpClient
      * */
-    private static TcpClient mSocketClient = null;
+    private volatile static TcpClient mSocketClient = null;
 
     public static TcpClient getInstance(){
         if(mSocketClient == null){
             synchronized (TcpClient.class) {
-                mSocketClient = new TcpClient();
+                if(mSocketClient == null){
+                    mSocketClient = new TcpClient();
+                }
             }
         }
         return mSocketClient;
@@ -301,7 +303,7 @@ public class TcpClient {
                     byte[] buffer = bundle.getByteArray("data");
                     int requestCode = bundle.getInt("requestCode");
                     String message = new String(buffer, StandardCharsets.UTF_8);
-
+                    Log.i(TAG, "TCP >> " + message);
                     if (null != tcpCallback) {
                         tcpCallback.onDataReceived(message,requestCode);
                     }

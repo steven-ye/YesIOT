@@ -105,8 +105,6 @@ public class ControlFragment extends Fragment implements MQTTService.MQTTCallBac
             }
         });
 
-        mqttConnection = MQTTConnection.getInstance();
-        mqttConnection.setMqttCallBack(this);
 
         return root;
     }
@@ -114,6 +112,8 @@ public class ControlFragment extends Fragment implements MQTTService.MQTTCallBac
     @Override
     public void onStart() {
         super.onStart();
+        mqttConnection = MQTTConnection.getInstance();
+        mqttConnection.setMqttCallBack(this);
         startTcpConnect();
         tabLayout.getTabAt(viewModel.getOptionValue()).select();
 
@@ -184,18 +184,19 @@ public class ControlFragment extends Fragment implements MQTTService.MQTTCallBac
         if (TextUtils.isEmpty(message)) return;
 
         if(viewModel.getOptionValue()>0){
-            tcpClient.send(message);
-            return;
+            if(tcpClient.isConnect()){
+                tcpClient.send(message);
+                Log.i(TAG,"TCP << " + message);
+            }else{
+                Utils.showToast("没有连接到设备");
+            }
+        }else{
+            String topic = panel.topic;
+            if(TextUtils.isEmpty(topic)){
+                topic = getTopic(device, "cmd");
+            }
+            MQTTService.publish(topic,message);
         }
-        if(!(mqttConnection.getMqttCallBack() instanceof ControlFragment)){
-            mqttConnection.setMqttCallBack(this);
-        }
-        String topic = panel.topic;
-        if(TextUtils.isEmpty(topic)){
-            topic = getTopic(device, "cmd");
-        }
-        MQTTService.publish(topic,message);
-        Log.i(TAG,"MQTT << ["+topic+"]" + message);
     }
 
     private String getTopic(Device device, String cmd){
@@ -289,8 +290,10 @@ public class ControlFragment extends Fragment implements MQTTService.MQTTCallBac
     boolean reconnect = false;
     private void startTcpConnect() {
         tcpClient = TcpClient.getInstance();
-        tcpClient.connect(device.getIp(),80);
         tcpClient.setCallback(tcpCallback);
+        if(tcpClient.isConnect())return;
+        reconnect = false;
+        tcpClient.connect(device.getIp(),80);
         Log.i(TAG,"Start TCP connection");
     }
 

@@ -57,24 +57,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        mqttConnection = MQTTConnection.getInstance();
-        if(!bound){
-            Intent intent = new Intent(this, MQTTService.class);
-            bound = bindService(intent, mqttConnection, Context.BIND_AUTO_CREATE);
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i("MainActivity", "onStart");
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+        mqttConnect();
     }
 
     @Override
@@ -85,9 +68,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void restartConnection(){
+    public void mqttConnect(){
+        mqttConnection = MQTTConnection.getInstance();
         if(bound) unbindService(mqttConnection);
-        onStart();
+        Intent intent = new Intent(this, MQTTService.class);
+        bound = bindService(intent, mqttConnection, Context.BIND_AUTO_CREATE);
     }
 
     Intent intent;

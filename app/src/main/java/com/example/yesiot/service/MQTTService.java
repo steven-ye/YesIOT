@@ -1,9 +1,6 @@
 package com.example.yesiot.service;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -14,9 +11,6 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.core.app.NotificationCompat;
-
-import com.example.yesiot.R;
 import com.example.yesiot.object.Constants;
 import com.example.yesiot.util.SPUtils;
 import com.example.yesiot.util.Utils;
@@ -30,7 +24,6 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -127,7 +120,7 @@ public class MQTTService extends Service {
             }
         } catch (MqttException e) {
             e.printStackTrace();
-            Log.v(TAG, "订阅失败 >> " + e.getMessage());
+            Log.e(TAG, "订阅失败 >> " + e.getMessage());
         }
     }
 
@@ -209,7 +202,8 @@ public class MQTTService extends Service {
 
         @Override
         public void onSuccess(IMqttToken arg0) {
-            Log.i(TAG, "连接成功 ");
+            Utils.createNotification(getApplicationContext(),"MQTT 连接","连接成功");
+            Log.i(TAG, "MQTT 连接成功 ");
             try {
                 // 订阅myTopic话题
                 client.subscribe(lastWillTopic,1);
@@ -240,6 +234,7 @@ public class MQTTService extends Service {
 
             String str1 = new String(message.getPayload());
             String str2 = topic + ";qos:" + message.getQos() + ";retained:" + message.isRetained();
+            //Utils.createNotification(getApplicationContext(),"MQTT 消息","["+topic+"]"+str1);
             Log.i(TAG, "messageArrived: [" + topic + "] " + str1);
             Log.i(TAG, str2);
             if (mCallBack != null){
@@ -256,10 +251,12 @@ public class MQTTService extends Service {
         public void connectionLost(Throwable arg0) {
             // 失去连接，重连
             Utils.showToast("连接丢失");
-            /*
+
             if(autoReconnect){
+                client.unregisterResources();
+                //client.close();
                 doClientConnection();
-            }*/
+            }
             if(mCallBack != null)  mCallBack.onLost();
         }
     };
@@ -274,6 +271,7 @@ public class MQTTService extends Service {
             Log.i(TAG, "MQTT当前网络名称：" + name);
             return true;
         } else {
+            Utils.createNotification(getApplicationContext(),"MQTT无法连接","没有可用网络");
             Log.i(TAG, "MQTT 没有可用网络");
             return false;
         }
@@ -297,24 +295,6 @@ public class MQTTService extends Service {
         public MQTTService getService(){
             return MQTTService.this;
         }
-    }
-
-    public void createNotification(String title, String message){
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, new Intent(this,MQTTService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this,"MQTTService");//3、创建一个通知，属性太多，使用构造器模式
-
-        Notification notification = builder
-                .setTicker("MQTT Service")
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setContentInfo("")
-                .setContentIntent(pendingIntent)//点击后才触发的意图，“挂起的”意图
-                .setAutoCancel(true)        //设置点击之后notification消失
-                .build();
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        startForeground(0, notification);
-        notificationManager.notify(0, notification);
     }
 
     public interface MQTTCallBack {

@@ -72,15 +72,12 @@ public class BrokerFragment extends Fragment {
                         .setCancelable(false)
                         .setTitle("温馨提示")
                         .setItems(items,null)
-                        .setPositiveButton("立即生效", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                MainActivity activity = (MainActivity)getActivity();
-                                assert activity != null;
-                                activity.restartConnection();
-                                //Navigation.findNavController(getView()).navigateUp();
-                            }
-                        }).setNeutralButton("取消",null);
+                        .setPositiveButton("立即生效", (dialog, which) -> {
+                            MainActivity activity = (MainActivity)getActivity();
+                            assert activity != null;
+                            activity.mqttConnect();
+                            Navigation.findNavController(getView()).navigateUp();
+                        }).setNegativeButton("重启生效", (dialog, which) -> Navigation.findNavController(getView()).navigateUp());
 
                 builder.show();
             }

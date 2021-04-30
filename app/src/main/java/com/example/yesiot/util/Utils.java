@@ -2,7 +2,12 @@ package com.example.yesiot.util;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -16,7 +21,11 @@ import android.util.DisplayMetrics;
 import android.util.Size;
 import android.widget.Toast;
 
+import androidx.core.app.NotificationCompat;
+
 import com.example.yesiot.IApplication;
+import com.example.yesiot.R;
+import com.example.yesiot.service.MQTTService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +48,41 @@ public class Utils {
     public static void showToast(Context context, String message){
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
+
+    public static void createNotification(Context context, String title, String message) {
+        //获取系统提供的通知管理服务
+        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);//获取管理类的实例
+        //判断是否为8.0以上系统，是的话新建一个通道
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            //创建一个通道 一参：id  二参：name 三参：统通知的优先级
+            NotificationChannel channel = new NotificationChannel("channelId", "通知", NotificationManager.IMPORTANCE_HIGH);
+
+            channel.setVibrationPattern(new long[]{0});//通道来控制震动
+            // 允许通知使用震动，默认为false
+            channel.enableVibration(true);
+            // 设置显示模式
+            channel.setLockscreenVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+            manager.createNotificationChannel(channel);//创建
+        }
+
+        Intent intent=new Intent(context, MQTTService.class);
+        //PendingIntent点击通知后跳转，一参：context 二参：一般为0 三参：intent对象 四参：一般为0
+        PendingIntent pendingIntent=PendingIntent.getActivity(context,1,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "channelId")
+                .setTicker("YesIOT通知") //Ticker是状态栏显示的提示
+                .setContentTitle(title)     //标题
+                .setContentText(message)    //内容
+                .setSmallIcon(R.drawable.ic_launcher_background) //图片
+                .setContentIntent(pendingIntent) //点击通知跳转
+                .setFullScreenIntent(pendingIntent,true)
+                .setAutoCancel(true) //完成跳转自动取消通知
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setWhen(System.currentTimeMillis())
+                .setDefaults(Notification.DEFAULT_ALL);
+
+        manager.notify(1, builder.build());//让通知显示出来
+    }
+
     /** 根据路径获取Bitmap图片
      * @param context Context
      * @param path String
