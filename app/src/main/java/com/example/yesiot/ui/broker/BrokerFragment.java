@@ -57,7 +57,7 @@ public class BrokerFragment extends Fragment {
                         .setPositiveButton("立即生效", (dialog, which) -> {
                             MainActivity activity = (MainActivity)getActivity();
                             assert activity != null;
-                            activity.mqttConnect();
+                            activity.startService();
                             Navigation.findNavController(getView()).navigateUp();
                         }).setNegativeButton("重启生效", (dialog, which) -> Navigation.findNavController(getView()).navigateUp());
 

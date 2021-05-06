@@ -3,6 +3,7 @@ package com.example.yesiot.service;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -10,8 +11,8 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -36,12 +37,15 @@ import java.util.Map;
 import java.util.Objects;
 
 public class MQTTService extends Service {
-    public static final String TAG = MQTTService.class.getSimpleName();
+    public static final String TAG = "MQTTService";
 
+    private final int NOTIFICATION_ID = 1001;
+    NotificationManager notificationManager;
+
+    private MQTTCallBack mCallBack;
     @SuppressLint("StaticFieldLeak")
     private static MqttAndroidClient client;
     private MqttConnectOptions options;
-    private MQTTCallBack mCallBack;
 
     private String host = "tcp://192.168.1.2:1883";
     private String userName;
@@ -88,7 +92,59 @@ public class MQTTService extends Service {
         autoReconnect = Objects.equals(settings.get("auto"),"yes");
         cleanSession = Objects.equals(settings.get("session"),"yes");
         Log.i(TAG, "Broker >>" + host);
+
         init();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.e(getClass().getName(), "onBind");
+        return new CustomBinder();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        createNotification();
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void createNotification(){
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("mqttchannel", "MQTT服务", NotificationManager.IMPORTANCE_HIGH);
+            channel.enableVibration(false);
+            channel.setVibrationPattern(new long[]{0});
+            channel.enableLights(false);
+            channel.setSound(null, null);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+        startForeground(NOTIFICATION_ID, buildNotification());
+    }
+
+    private Notification buildNotification() {
+        Intent intent=new Intent(getApplicationContext(), MainActivity.class);
+        //PendingIntent点击通知后跳转，一参：context 二参：一般为0 三参：intent对象 四参：一般为0
+        PendingIntent pendingIntent=PendingIntent.getActivity(getApplicationContext(),1,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification.Builder builder = new Notification.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText("已开启MQTT服务")
+                .setPriority(Notification.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true) //完成跳转自动取消通知
+                .setWhen(System.currentTimeMillis())
+                .setDefaults(NotificationCompat.FLAG_ONLY_ALERT_ONCE)
+                .setVibrate(new long[]{0})
+                .setSound(null);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder.setChannelId("mqttchannel");
+        }
+        Notification notification = builder.build();
+        notification.flags = Notification.FLAG_FOREGROUND_SERVICE;
+        return notification;
     }
 
     public static boolean isConnected(){
@@ -194,11 +250,10 @@ public class MQTTService extends Service {
 
     // MQTT是否连接成功
     private final IMqttActionListener iMqttActionListener = new IMqttActionListener() {
-
         @Override
         public void onSuccess(IMqttToken arg0) {
             Utils.createNotification(getApplicationContext(),getString(R.string.app_name),"MQTT连接成功");
-            Log.i(TAG, "MQTT 连接成功 ");
+            Log.i(TAG, "MQTT连接成功 ");
             try {
                 // 订阅myTopic话题
                 client.subscribe(lastWillTopic,1);
@@ -213,7 +268,8 @@ public class MQTTService extends Service {
         @Override
         public void onFailure(IMqttToken arg0, Throwable arg1) {
             arg1.printStackTrace();
-            Utils.showToast(getApplicationContext(),arg1.getMessage());
+            Utils.showToast(getApplicationContext(),"MQTT连接失败");
+            Log.e(TAG, arg1.getMessage());
             // 连接失败，重连
             if(mCallBack != null) {
                 mCallBack.onFailure();
@@ -245,7 +301,7 @@ public class MQTTService extends Service {
         @Override
         public void connectionLost(Throwable arg0) {
             // 失去连接，重连
-            Utils.showToast("连接丢失");
+            Utils.showToast("MQTT连接丢失");
 
             if(autoReconnect){
                 client.unregisterResources();
@@ -273,7 +329,8 @@ public class MQTTService extends Service {
 
     @Override
     public void onDestroy() {
-        //stopSelf();
+        super.onDestroy();
+        stopSelf();
         Log.e(TAG, "MQTT服务被杀死了！！！！");
         //断开连接
         try {
@@ -285,18 +342,9 @@ public class MQTTService extends Service {
         } catch (MqttException e) {
             e.printStackTrace();
         }
-        super.onDestroy();
+        if(notificationManager!=null)notificationManager.cancel(NOTIFICATION_ID);
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        Log.e(getClass().getName(), "onBind");
-        return new CustomBinder();
-    }
-
-    public MQTTCallBack getCallBack(){
-         return mCallBack;
-    }
     public void setCallBack(MQTTCallBack callBack){
         mCallBack = callBack;
     }

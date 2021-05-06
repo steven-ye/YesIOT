@@ -298,8 +298,8 @@ public class ControlFragment extends Fragment implements MQTTService.MQTTCallBac
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onStop() {
+        super.onStop();
         tcpClient.disconnect();
         tcpClient.setCallback(null);
     }

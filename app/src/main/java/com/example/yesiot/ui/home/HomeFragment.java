@@ -250,7 +250,7 @@ public class HomeFragment extends Fragment implements MQTTService.MQTTCallBack {
                 loadingDialog.dismiss();
             }
         });
-        ipScan.startScanning();
+        ipScan.startScanning(getContext());
     }
 
     private boolean handleFound(DeviceBean deviceBean){

@@ -8,7 +8,7 @@ import android.util.Log;
 public class MQTTConnection implements ServiceConnection {
 
     private MQTTService mqttService;
-    private MQTTService.MQTTCallBack mqttCallBack;
+    private static MQTTService.MQTTCallBack mqttCallBack;
 
     private static MQTTConnection instance;
     public static MQTTConnection getInstance(){
@@ -35,11 +35,6 @@ public class MQTTConnection implements ServiceConnection {
 
     public MQTTService getMqttService(){
         return mqttService;
-    }
-
-    public MQTTService.MQTTCallBack getMqttCallBack(){
-        if(mqttService ==null) return null;
-        return mqttService.getCallBack();
     }
 
     public void setMqttCallBack(MQTTService.MQTTCallBack callBack){

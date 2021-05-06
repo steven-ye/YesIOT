@@ -1,5 +1,6 @@
 package com.example.yesiot.service;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,6 +9,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.yesiot.object.Constants;
+import com.example.yesiot.util.IPUtils;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -49,9 +51,10 @@ public class IPScan {
     private int ipCurrent;
     private Message msg;
 
-    public void startScanning(){
+    public void startScanning(Context context){
         // 本机IP地址-完整
-        String devAddress = getHostIP();// 获取本机IP地址
+        //String devAddress = getHostIP();// 获取本机IP地址
+        String devAddress = IPUtils.getIPAdress(context);
         Log.e(TAG, "开始扫描设备,本机Ip为：" + devAddress);
         startScanning(devAddress);
     }
@@ -170,8 +173,8 @@ public class IPScan {
             e.printStackTrace();
         }
         return hostIp;
-
     }
+
     /**
      * TODO<获取本机IP前缀>
      *

@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private HomeViewModel homeViewModel;
+    private Intent mqttService;
     private MQTTConnection mqttConnection;
     private boolean bound;
 
@@ -56,7 +57,9 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-        mqttConnect();
+        mqttService = new Intent(this, MQTTService.class);
+        mqttConnection = MQTTConnection.getInstance();
+        startService();
     }
 
     @Override
@@ -66,18 +69,29 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-
-    public void mqttConnect(){
-        mqttConnection = MQTTConnection.getInstance();
-        if(bound) unbindService(mqttConnection);
+    /**
+     * 启动后台服务
+     */
+    public void startService() {
+        stopService();
         Intent intent = new Intent(this, MQTTService.class);
         bound = bindService(intent, mqttConnection, Context.BIND_AUTO_CREATE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(mqttService);
+        } else {
+            startService(mqttService);
+        }
+    }
+
+    public void stopService(){
+        if(bound)unbindService(mqttConnection);
+        stopService(mqttService);
+        bound = false;
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(mqttConnection);
-        bound = false;
+        stopService();
     }
 }
