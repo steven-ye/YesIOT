@@ -26,10 +26,9 @@ public class BrokerViewModel {
     public EditText et_topic;
     public EditText et_message;
     public CheckBox cb_auto;
-    public CheckBox cb_notice;
+    public CheckBox cb_session;
     public CheckedTextView ctv_lastwill;
     public Button btn_okay;
-    public Button btn_cancel;
     public Spinner spinner;
     public View row_lastwill;
 
@@ -45,7 +44,7 @@ public class BrokerViewModel {
         et_topic = root.findViewById(R.id.link_topic);
         et_message = root.findViewById(R.id.link_message);
         cb_auto = root.findViewById(R.id.checkbox_auto);
-        cb_notice = root.findViewById(R.id.checkbox_notice);
+        cb_session = root.findViewById(R.id.checkbox_session);
         ctv_lastwill = root.findViewById(R.id.lastwill);
         btn_okay = root.findViewById(R.id.button_okay);
         spinner = root.findViewById(R.id.protocol);

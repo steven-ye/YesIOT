@@ -56,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-
         mqttConnect();
     }
 
@@ -73,16 +72,6 @@ public class MainActivity extends AppCompatActivity {
         if(bound) unbindService(mqttConnection);
         Intent intent = new Intent(this, MQTTService.class);
         bound = bindService(intent, mqttConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    Intent intent;
-    public void startService(){
-        intent = new Intent(this, MQTTService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent);
-        } else {
-            startService(intent);
-        }
     }
 
     @Override

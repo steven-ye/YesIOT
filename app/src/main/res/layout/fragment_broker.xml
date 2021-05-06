@@ -127,8 +127,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
                     android:orientation="horizontal">
 
                     <TextView
@@ -267,33 +265,21 @@
                 android:layout_marginTop="10dp"
                 android:orientation="horizontal">
 
-                <LinearLayout
+                <CheckBox
+                    android:id="@+id/checkbox_auto"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="horizontal">
+                    android:checked="true"
+                    android:text="@string/checkbox_auto" />
 
-                    <CheckBox
-                        android:id="@+id/checkbox_auto"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="true"
-                        android:text="@string/checkbox_auto" />
-                </LinearLayout>
-
-                <LinearLayout
+                <CheckBox
+                    android:id="@+id/checkbox_session"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="horizontal">
-
-                    <CheckBox
-                        android:id="@+id/checkbox_notice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="false"
-                        android:text="@string/checkbox_notice" />
-                </LinearLayout>
+                    android:checked="false"
+                    android:text="@string/checkbox_session" />
 
             </LinearLayout>
 

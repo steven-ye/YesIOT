@@ -1,24 +1,15 @@
 package com.example.yesiot.ui.broker;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.CheckedTextView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.example.yesiot.MainActivity;
@@ -27,9 +18,6 @@ import com.example.yesiot.object.Constants;
 import com.example.yesiot.util.SPUtils;
 import com.example.yesiot.util.Utils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -47,12 +35,6 @@ public class BrokerFragment extends Fragment {
         viewModel = new BrokerViewModel(root);
         viewModel.setProtocols(protocols);
         initValue();
-
-        viewModel.cb_notice.setChecked(false);
-        viewModel.cb_notice.setOnClickListener(v->{
-            Utils.showToast(getActivity(),"此功能暂时不可用");
-            viewModel.cb_notice.setChecked(false);
-        });
 
         viewModel.ctv_lastwill.setOnClickListener(v->{
             CheckedTextView view = (CheckedTextView)v;
@@ -110,7 +92,7 @@ public class BrokerFragment extends Fragment {
         viewModel.et_topic.setText(settings.get("topic"));
         viewModel.et_message.setText(settings.get("message"));
         viewModel.cb_auto.setChecked(Objects.equals(settings.get("auto"), "yes"));
-        viewModel.cb_notice.setChecked(Objects.equals(settings.get("notice"),"yes"));
+        viewModel.cb_session.setChecked(Objects.equals(settings.get("session"),"yes"));
         int position = viewModel.getProtocolPosition(settings.get("protocol"));
         viewModel.spinner.setSelection(position,true);
     }
@@ -127,7 +109,7 @@ public class BrokerFragment extends Fragment {
         settings.put("topic",viewModel.et_topic.getText().toString());
         settings.put("message",viewModel.et_message.getText().toString());
         settings.put("auto",viewModel.cb_auto.isChecked()?"yes":"no");
-        settings.put("notice",viewModel.cb_auto.isChecked()?"yes":"no");
+        settings.put("session",viewModel.cb_session.isChecked()?"yes":"no");
         int pos = viewModel.spinner.getSelectedItemPosition();
         settings.put("protocol", viewModel.getProtocol(pos));
 

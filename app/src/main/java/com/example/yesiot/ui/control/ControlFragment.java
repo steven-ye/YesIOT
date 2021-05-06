@@ -105,13 +105,13 @@ public class ControlFragment extends Fragment implements MQTTService.MQTTCallBac
             }
         });
 
-
         return root;
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        Log.i(TAG, "onStart");
         mqttConnection = MQTTConnection.getInstance();
         mqttConnection.setMqttCallBack(this);
         startTcpConnect();

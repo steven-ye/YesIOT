@@ -24,6 +24,7 @@ import android.widget.Toast;
 import androidx.core.app.NotificationCompat;
 
 import com.example.yesiot.IApplication;
+import com.example.yesiot.MainActivity;
 import com.example.yesiot.R;
 import com.example.yesiot.service.MQTTService;
 
@@ -65,10 +66,10 @@ public class Utils {
             manager.createNotificationChannel(channel);//创建
         }
 
-        Intent intent=new Intent(context, MQTTService.class);
+        Intent intent=new Intent(context, MainActivity.class);
         //PendingIntent点击通知后跳转，一参：context 二参：一般为0 三参：intent对象 四参：一般为0
         PendingIntent pendingIntent=PendingIntent.getActivity(context,1,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "channelId")
+        Notification notification = new NotificationCompat.Builder(context, "channelId")
                 .setTicker("YesIOT通知") //Ticker是状态栏显示的提示
                 .setContentTitle(title)     //标题
                 .setContentText(message)    //内容
@@ -78,9 +79,10 @@ public class Utils {
                 .setAutoCancel(true) //完成跳转自动取消通知
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setWhen(System.currentTimeMillis())
-                .setDefaults(Notification.DEFAULT_ALL);
+                .setDefaults(Notification.DEFAULT_ALL)
+                .build();
 
-        manager.notify(1, builder.build());//让通知显示出来
+        manager.notify(1, notification);//让通知显示出来
     }
 
     /** 根据路径获取Bitmap图片

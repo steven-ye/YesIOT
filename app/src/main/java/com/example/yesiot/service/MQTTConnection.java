@@ -13,7 +13,11 @@ public class MQTTConnection implements ServiceConnection {
     private static MQTTConnection instance;
     public static MQTTConnection getInstance(){
         if(instance==null){
-            instance = new MQTTConnection();
+            synchronized (MQTTConnection.class) {
+                if(instance == null){
+                    instance = new MQTTConnection();
+                }
+            }
         }
         return instance;
     }

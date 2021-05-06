@@ -1,6 +1,9 @@
 package com.example.yesiot.service;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -8,9 +11,14 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.core.app.NotificationCompat;
+
+import com.example.yesiot.MainActivity;
+import com.example.yesiot.R;
 import com.example.yesiot.object.Constants;
 import com.example.yesiot.util.SPUtils;
 import com.example.yesiot.util.Utils;
@@ -42,6 +50,7 @@ public class MQTTService extends Service {
     private int alive = 60;
     private int timeout = 30;
     private boolean autoReconnect = false;
+    private boolean cleanSession = false;
     private static String lastWillTopic = "/yesiot/android/phone/lastwill";      //要订阅的主题
     private static String lastWill="";      //要订阅的主题
 
@@ -77,6 +86,7 @@ public class MQTTService extends Service {
             lastWill = settings.get("message");
         }
         autoReconnect = Objects.equals(settings.get("auto"),"yes");
+        cleanSession = Objects.equals(settings.get("session"),"yes");
         Log.i(TAG, "Broker >>" + host);
         init();
     }
@@ -133,7 +143,7 @@ public class MQTTService extends Service {
 
         options = new MqttConnectOptions();
         // 清除缓存
-        options.setCleanSession(true);
+        options.setCleanSession(cleanSession);
         // 设置超时时间，单位：秒
         options.setConnectionTimeout(timeout);
         // 心跳包发送间隔，单位：秒
@@ -142,8 +152,9 @@ public class MQTTService extends Service {
         options.setUserName(userName);
         // 密码
         options.setPassword(passWord.toCharArray());     //将字符串转换为字符串数组
-
+        // 自动重连
         options.setAutomaticReconnect(autoReconnect);
+        // 设置清空Session，false表示服务器会保留客户端的连接记录，true表示每次以新的身份连接到服务器
 
         // last will message
         boolean doConnect = true;
@@ -170,22 +181,6 @@ public class MQTTService extends Service {
 
     }
 
-    @Override
-    public void onDestroy() {
-        stopSelf();
-        try {
-            if(client != null){
-                client.disconnect();
-                client.unregisterResources();
-                //client.close();
-                client = null;
-            }
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
-        super.onDestroy();
-    }
-
     /** 连接MQTT服务器 */
     private void doClientConnection() {
         if (!client.isConnected() && isConnectIsNormal()) {
@@ -202,7 +197,7 @@ public class MQTTService extends Service {
 
         @Override
         public void onSuccess(IMqttToken arg0) {
-            Utils.createNotification(getApplicationContext(),"MQTT 连接","连接成功");
+            Utils.createNotification(getApplicationContext(),getString(R.string.app_name),"MQTT连接成功");
             Log.i(TAG, "MQTT 连接成功 ");
             try {
                 // 订阅myTopic话题
@@ -254,7 +249,6 @@ public class MQTTService extends Service {
 
             if(autoReconnect){
                 client.unregisterResources();
-                //client.close();
                 doClientConnection();
             }
             if(mCallBack != null)  mCallBack.onLost();
@@ -277,6 +271,22 @@ public class MQTTService extends Service {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        //stopSelf();
+        Log.e(TAG, "MQTT服务被杀死了！！！！");
+        //断开连接
+        try {
+            if(client != null){
+                client.disconnect();
+                client.unregisterResources();
+                //client.close();
+            }
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+        super.onDestroy();
+    }
 
     @Override
     public IBinder onBind(Intent intent) {

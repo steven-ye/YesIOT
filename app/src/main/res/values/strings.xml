@@ -56,7 +56,7 @@
     <string name="broker_clientid_hint">留空则自动生成</string>
     <string name="broker_ip_hint">192.168.1.2</string>
     <string name="checkbox_auto">断线重连</string>
-    <string name="checkbox_notice">断线通知</string>
+    <string name="checkbox_session">清空缓存</string>
 
     <!-- fragment_device -->
     <string name="device_name">设备名称</string>
