@@ -19,9 +19,13 @@ public class SPUtils {
         static SPUtils instance = new SPUtils();
     }
 
-    private SPUtils() {
+    public SPUtils() {
         sharedPreferences = IApplication._getContext()
                 .getSharedPreferences("date", Context.MODE_PRIVATE);
+    }
+
+    public SPUtils(Context context){
+        sharedPreferences = context.getSharedPreferences("date", Context.MODE_PRIVATE);
     }
 
     public static SPUtils getInstance() {

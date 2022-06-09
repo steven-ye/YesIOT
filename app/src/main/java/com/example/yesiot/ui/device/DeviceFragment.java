@@ -15,26 +15,25 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
-import com.example.yesiot.dialog.ImagesDialog;
-import com.example.yesiot.MainActivity;
+import com.example.yesiot.AbsFragment;
+import com.example.yesiot.ui.dialog.ConfirmDialog;
+import com.example.yesiot.ui.dialog.ImagesDialog;
 import com.example.yesiot.R;
 import com.example.yesiot.helper.DeviceHelper;
+import com.example.yesiot.helper.PanelHelper;
 import com.example.yesiot.object.Device;
 import com.example.yesiot.util.Utils;
 import com.google.android.material.textfield.TextInputLayout;
 
-public class DeviceFragment extends Fragment {
+public class DeviceFragment extends AbsFragment {
 
     private DeviceViewModel viewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        //在fragment中使用oncreateOptionsMenu时需要在onCrateView中添加此方法，否则不会调用
-        setHasOptionsMenu(true);
+
         View root = inflater.inflate(R.layout.fragment_device, container, false);
         viewModel = new DeviceViewModel(root);
 
@@ -52,16 +51,6 @@ public class DeviceFragment extends Fragment {
                 iv.setImageDrawable(imageView.getDrawable());
             });
         });
-
-        viewModel.device_option.setOnClickListener(v->{
-            viewModel.device_option.toggle();
-            if(viewModel.device_option.isChecked()){
-                viewModel.row_device_option.setVisibility(View.VISIBLE);
-            }else{
-                viewModel.row_device_option.setVisibility(View.GONE);
-            }
-        });
-        viewModel.device_option.callOnClick();
 
         Bundle args = getArguments();
         int id = args != null ? args.getInt("id") : 0;
@@ -81,13 +70,28 @@ public class DeviceFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.save, menu);
+        inflater.inflate(R.menu.edit, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId()==R.id.action_save){
             save();
+        }else if(item.getItemId()==R.id.action_remove){
+            Device device = viewModel.getDevice();
+            if(device.getId()>0){
+                ConfirmDialog.show(getParentFragmentManager(), "此操作不可恢复，确认要删除此设备？", v -> {
+                    ConfirmDialog.show(getParentFragmentManager(), "请再次确认要删除此设备！", v1 -> {
+                        String message = "删除设备失败";
+                        PanelHelper.remove(device.getId());
+                        if (!PanelHelper.hasPanel(device.getId()) && DeviceHelper.remove(device.getId())) {
+                            Navigation.findNavController(getView()).navigateUp();
+                            message = "删除设备成功";
+                        }
+                        Utils.showToast(message);
+                    });
+                });
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -98,8 +102,8 @@ public class DeviceFragment extends Fragment {
         if(TextUtils.isEmpty(device.getName())){
             viewModel.layout_name.setError("设备名称不能为空");
             return;
-        }else if(device.getName().length()<4 || device.getName().length()>20){
-            viewModel.layout_name.setError("设备名称要求 6 - 20 个字符");
+        }else if(device.getName().length()>20){
+            viewModel.layout_name.setError("设备名称最多20个字符");
             return;
         }
         if(TextUtils.isEmpty(device.getCode())){
@@ -113,11 +117,6 @@ public class DeviceFragment extends Fragment {
         }else{
             Utils.showToast("保存失败");
         }
-    }
-
-    private void setTitle(String title) {
-        MainActivity activity = (MainActivity) getActivity();
-        activity.getSupportActionBar().setTitle(title);
     }
 
     static class EmptyTextWachter implements TextWatcher {

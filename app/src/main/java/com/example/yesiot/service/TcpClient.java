@@ -113,7 +113,7 @@ public class TcpClient {
                 //uiHandler.sendEmptyMessage(-1);
                 sendEmptyMessage(-1);
                 Log.e(TAG,"SocketThread connect io exception = "+e.getMessage());
-                e.printStackTrace();
+                //e.printStackTrace();
                 return;
             }
             Log.d(TAG,"SocketThread connect over ");

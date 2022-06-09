@@ -1,22 +1,28 @@
 package com.example.yesiot.object;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Device {
     private int id = 0;
+    private int brokerId = 0;
+    private int userId = 0;
     private String name;
     private String code;
     private String theme;
     private String image = "";
     private List<String> pins = new ArrayList<>();
     private String ip = "";
-    private int port = Constants.TCP_SERVER_PORT;
+    private int port;
     private String sub = "";
     private String topic = "";
     private String payload = "";
     private String cmdOff = "";
     private String status = "";
+    private String state = "";
+    private String broker;
 
     public Device(){}
     public Device(String name, String code, String ip){
@@ -31,12 +37,31 @@ public class Device {
     public int getId() {
         return id;
     }
+    public void setBrokerId(int brokerId) {
+        this.brokerId = brokerId;
+    }
+    public int getBrokerId() {
+        return brokerId;
+    }
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+    public int getUserId() {
+        return userId;
+    }
 
     public void setName(String name) {
         this.name = name;
     }
     public String getName() {
         return name;
+    }
+
+    public void setBroker(String broker) {
+        this.broker = broker;
+    }
+    public String getBroker() {
+        return broker;
     }
 
     public void setCode(String code) {
@@ -102,10 +127,23 @@ public class Device {
         return status;
     }
 
+    public void setState(String state) {
+        this.state = state;
+    }
+    public String getState() {
+        return state;
+    }
+
     public void setPins(List<String> pins) {
         this.pins = pins;
     }
     public List<String> getPins() {
         return pins;
+    }
+
+    @NotNull
+    public String toString(){
+        return "id:"+id+",name:"+name+",code:"+code+",ip:"+ip+",port:"+port
+                +",topic:"+topic;
     }
 }

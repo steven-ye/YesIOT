@@ -2,6 +2,7 @@ package com.example.yesiot.helper;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 
 import com.example.yesiot.object.Panel;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PanelHelper extends AbstractHelper {
-    private static String table="panels";
+    private static final String table="panels";
 
     public static Panel get(int id) {
         return getPanel(getMap(table,id));
@@ -27,13 +28,16 @@ public class PanelHelper extends AbstractHelper {
         cv.put("image",panel.image);
         cv.put("device_id",panel.deviceId);
         cv.put("type",panel.type);
+        cv.put("design",panel.design);
         cv.put("width",panel.width);
         cv.put("height",panel.height);
-        cv.put("sub",panel.sub);
         cv.put("payload",panel.payload);
         cv.put("cmd_on",panel.on);
         cv.put("cmd_off",panel.off);
+        cv.put("size",panel.size);
         cv.put("pos",panel.pos);
+        cv.put("title_size",panel.title_size);
+        cv.put("unit_size",panel.unit_size);
         if(panel.id>0){
             num = dbHelper.update(table,cv,panel.id);
         }else{
@@ -53,7 +57,15 @@ public class PanelHelper extends AbstractHelper {
         }
         return num>0;
     }
-
+    public static boolean hasPanel(int deviceId){
+        SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
+        //Cursor cursor = db.rawQuery("SELECT * FROM "+table+" WHERE user_id=?",new String[]{userId+""});
+        Cursor cursor = db.rawQuery("SELECT * FROM "+table+" WHERE device_id=?",new String[]{deviceId+""});
+        boolean has = cursor.moveToNext();
+        cursor.close();
+        db.close();
+        return has;
+    }
     public static List<Panel> getList(int deviceId){
         List<Panel> panelList = new ArrayList<>();
         List<Map<String,String>> list = getMapList(table,"device_id=?", new String[] {deviceId+""});
@@ -67,6 +79,7 @@ public class PanelHelper extends AbstractHelper {
         Panel panel = new Panel();
         panel.id = map.get("id")==null?0:Integer.parseInt(map.get("id"));
         panel.type = map.get("type")==null?0:Integer.parseInt(map.get("type"));
+        panel.design = map.get("design")==null?0:Integer.parseInt(map.get("design"));
         panel.width = map.get("width")==null?0:Integer.parseInt(map.get("width"));
         panel.height = map.get("height")==null?0:Integer.parseInt(map.get("height"));
         panel.deviceId = map.get("device_id")==null?0:Integer.parseInt(map.get("device_id"));
@@ -75,10 +88,12 @@ public class PanelHelper extends AbstractHelper {
         panel.unit = map.get("unit")==null?"":map.get("unit");
         panel.image = map.get("image")==null?"":map.get("image");
         panel.payload = map.get("payload")==null?"":map.get("payload");
-        panel.sub = map.get("sub")==null?"":map.get("sub");
         panel.off = map.get("cmd_off")==null?"":map.get("cmd_off");
         panel.on = map.get("cmd_on")==null?"":map.get("cmd_on");
+        panel.size = map.get("pos")==null?"":map.get("size");
         panel.pos = map.get("pos")==null?"":map.get("pos");
+        panel.title_size = map.get("title_size")==null?"":map.get("title_size");
+        panel.unit_size = map.get("unit_size")==null?"":map.get("unit_size");
         return panel;
     }
 
@@ -86,6 +101,7 @@ public class PanelHelper extends AbstractHelper {
         Panel panel = new Panel();
         panel.id = getColumnInt(cursor,"id");
         panel.type = getColumnInt(cursor,"type");
+        panel.design = getColumnInt(cursor,"design");
         panel.width = getColumnInt(cursor,"width");
         panel.height = getColumnInt(cursor,"height");
         panel.deviceId = getColumnInt(cursor,"device_id");
@@ -93,15 +109,22 @@ public class PanelHelper extends AbstractHelper {
         panel.title = getColumn(cursor,"title");
         panel.unit = getColumn(cursor,"unit");
         panel.image = getColumn(cursor,"image");
-        panel.sub = getColumn(cursor,"sub");
         panel.payload = getColumn(cursor,"payload");
         panel.off = getColumn(cursor,"cmd_off");
         panel.on = getColumn(cursor,"cmd_on");
+        panel.size = getColumn(cursor,"size");
         panel.pos = getColumn(cursor,"pos");
+        panel.title_size = getColumn(cursor,"title_size");
+        panel.unit_size = getColumn(cursor,"unit_size");
         return panel;
     }
 
-    public static boolean remove(int id){
-        return remove(table,id);
+    public static boolean delete(int id){
+        return delete(table,id);
+    }
+    public static boolean remove(int deviceId){
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance();
+        int num = dbHelper.delete(table,"device_id=?", new String[]{deviceId+""});
+        return num>0;
     }
 }

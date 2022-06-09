@@ -54,10 +54,12 @@ public class DeviceHelper {
         cv.put("theme", device.getTheme());
         cv.put("image",device.getImage());
         cv.put("ip",device.getIp());
+        cv.put("port",device.getPort());
         cv.put("pins",new Gson().toJson(device.getPins()));
         cv.put("sub",device.getSub());
         cv.put("topic",device.getTopic());
         cv.put("payload",device.getPayload());
+        cv.put("broker_id",device.getBrokerId());
         int id = device.getId();
         if(id>0){
             num = dbHelper.update(table,cv, id);
@@ -79,10 +81,12 @@ public class DeviceHelper {
         return dev.getId() > 0;
     }
 
-    public static List<Device> getList(int userId){
-        SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM "+table+" WHERE user_id=?",new String[]{userId+""});
+    public static List<Device> getList(int brokerId){
         List<Device> list = new ArrayList<>();
+        if(brokerId<1)return list;
+        SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
+        //Cursor cursor = db.rawQuery("SELECT * FROM "+table+" WHERE user_id=?",new String[]{userId+""});
+        Cursor cursor = db.rawQuery("SELECT a.*,b.name AS broker FROM "+table + " a, brokers b WHERE a.broker_id=b.id AND broker_id=?",new String[]{brokerId+""});
         while(cursor.moveToNext()){
             list.add(getDevice(cursor));
         }
@@ -92,9 +96,9 @@ public class DeviceHelper {
     }
 
     public static List<Device> getList(){
-        SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM "+table,null);
         List<Device> list = new ArrayList<>();
+        SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT a.*,b.name AS broker FROM "+table + " a, brokers b WHERE a.broker_id=b.id",null);
         while(cursor.moveToNext()){
             list.add(getDevice(cursor));
         }
@@ -106,21 +110,39 @@ public class DeviceHelper {
     private static Device getDevice(Cursor cursor){
         Device device = new Device();
         device.setId(getIntColumn(cursor,"id"));
+        device.setBrokerId(getIntColumn(cursor,"broker_id"));
         device.setName(getColumn(cursor,"name"));
         device.setCode(getColumn(cursor,"code"));
         device.setTheme(getColumn(cursor,"theme"));
         device.setImage(getColumn(cursor,"image"));
         device.setIp(getColumn(cursor,"ip"));
+        device.setPort(getIntColumn(cursor,"port"));
         device.setSub(getColumn(cursor,"sub"));
         device.setTopic(getColumn(cursor,"topic"));
         device.setPayload(getColumn(cursor,"payload"));
         JsonElement jsonElement = JsonParser.parseString(getColumn(cursor,"pins"));
         device.setPins(new Gson().fromJson(jsonElement, new TypeToken<List<String>>() {}.getType()));
+
+        device.setBroker(getColumn(cursor,"broker"));
+
         return device;
     }
 
+    public static boolean hasDevice(int brokerId){
+        SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
+        //Cursor cursor = db.rawQuery("SELECT * FROM "+table+" WHERE user_id=?",new String[]{userId+""});
+        Cursor cursor = db.rawQuery("SELECT * FROM "+table+" WHERE broker_id=?",new String[]{brokerId+""});
+        boolean has = cursor.moveToNext();
+        cursor.close();
+        db.close();
+        return has;
+    }
+
     private static String getColumn(Cursor cursor, String name){
-        return cursor.getString(cursor.getColumnIndex(name));
+        if(cursor.getColumnIndex(name)>0){
+            return cursor.getString(cursor.getColumnIndex(name));
+        }
+        return "";
     }
     private static int getIntColumn(Cursor cursor, String name){
         return cursor.getInt(cursor.getColumnIndex(name));

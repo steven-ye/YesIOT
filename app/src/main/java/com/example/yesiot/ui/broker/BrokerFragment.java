@@ -2,29 +2,38 @@ package com.example.yesiot.ui.broker;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import com.example.yesiot.AbsFragment;
 import com.example.yesiot.MainActivity;
 import com.example.yesiot.R;
-import com.example.yesiot.object.Constants;
+import com.example.yesiot.ui.dialog.ConfirmDialog;
+import com.example.yesiot.helper.BrokerHelper;
+import com.example.yesiot.helper.DeviceHelper;
 import com.example.yesiot.util.SPUtils;
 import com.example.yesiot.util.Utils;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class BrokerFragment extends Fragment {
+public class BrokerFragment extends AbsFragment {
     final String TAG = "BrokerFragment";
     private BrokerViewModel viewModel;
-    Map<String,String> settings;
+    Map<String,String> map = new HashMap<>();
+    int id = 0;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -34,7 +43,6 @@ public class BrokerFragment extends Fragment {
 
         viewModel = new BrokerViewModel(root);
         viewModel.setProtocols(protocols);
-        initValue();
 
         viewModel.ctv_lastwill.setOnClickListener(v->{
             CheckedTextView view = (CheckedTextView)v;
@@ -46,96 +54,130 @@ public class BrokerFragment extends Fragment {
                 view.setChecked(true);
             }
         });
-        viewModel.btn_okay.setOnClickListener(v->{
-            if(saveValue()){
-                //Utils.showToast(getActivity(),"保存成功");
-                String[] items = new String[]{"保存成功"};
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                        .setCancelable(false)
-                        .setTitle("温馨提示")
-                        .setItems(items,null)
-                        .setPositiveButton("立即生效", (dialog, which) -> {
-                            MainActivity activity = (MainActivity)getActivity();
-                            assert activity != null;
-                            activity.startService();
-                            Navigation.findNavController(getView()).navigateUp();
-                        }).setNegativeButton("重启生效", (dialog, which) -> Navigation.findNavController(getView()).navigateUp());
+        viewModel.ctv_lastwill.callOnClick();
 
-                builder.show();
-            }
-        });
+        Bundle args = getArguments();
+        id = args == null ? 0 : args.getInt("id");
+        Log.w(TAG, "ID is "+id);
+        if(id > 0){
+            setTitle("修改连接信息");
+            map = BrokerHelper.get(id);
+            Log.w(TAG, "Broker name is "+map.get("name"));
+        }else{
+            setTitle("添加连接信息");
+            map.put("name","bemfa.com");
+            map.put("host","bemfa.com");
+            map.put("port","9501");
+            map.put("auto","yes");
+            map.put("session","yes");
+            map.put("clientId","181bc855e5877b283f33d5273e570b07");
+        }
+        map.put("id", id+"");
+        showValue();
+
         return root;
     }
 
-    public void initValue(){
-        settings = SPUtils.getInstance().getMap(Constants.BROKER);
-        if(TextUtils.isEmpty(settings.get("name"))){
-            settings.put("name","YesIOT_"+Utils.getRandomString(4));
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.edit, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId()==R.id.action_save){
+            if(save()){
+                int brokerId = SPUtils.getInstance().getInt("broker_id");
+                if(id == brokerId){
+                    getMainActivity().startMqttService();
+                }
+                Navigation.findNavController(getView()).navigateUp();
+            }
+        }else if(item.getItemId()==R.id.action_remove){
+            if(DeviceHelper.hasDevice(id)){
+                Utils.showToast("无法删除：该连接下有设备");
+            }else if(BrokerHelper.has(id)){
+                ConfirmDialog.show(getParentFragmentManager(), "确认要删除此连接？", v -> {
+                    if(DeviceHelper.remove(id)) {
+                        Navigation.findNavController(getView()).navigateUp();
+                        Utils.showToast("删除设备成功");
+                    }
+                });
+            }else{
+                Utils.showToast("连接信息不存在");
+            }
         }
-        if(TextUtils.isEmpty(settings.get("clientId"))){
-            settings.put("clientId",Utils.getIMEIDeviceId(getActivity()));
-        }
-        if(TextUtils.isEmpty(settings.get("ip"))){
-            settings.put("ip","192.168.1.2");
-        }
-        if(TextUtils.isEmpty(settings.get("port"))){
-            settings.put("port","1883");
-        }
-        viewModel.et_name.setText(settings.get("name"));
-        viewModel.et_ip.setText(settings.get("ip"));
-        viewModel.et_port.setText(settings.get("port"));
-        viewModel.et_clientid.setText(settings.get("clientId"));
-        viewModel.et_username.setText(settings.get("username"));
-        viewModel.et_password.setText(settings.get("password"));
-        viewModel.et_alive.setText(settings.get("alive"));
-        viewModel.et_timeout.setText(settings.get("timeout"));
-        viewModel.et_topic.setText(settings.get("topic"));
-        viewModel.et_message.setText(settings.get("message"));
-        viewModel.cb_auto.setChecked(Objects.equals(settings.get("auto"), "yes"));
-        viewModel.cb_session.setChecked(Objects.equals(settings.get("session"),"yes"));
-        int position = viewModel.getProtocolPosition(settings.get("protocol"));
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void showValue(){
+        //map = Utils.getBroker(getContext());
+        viewModel.et_name.setText(map.get("name"));
+        viewModel.et_host.setText(map.get("host"));
+        viewModel.et_port.setText(map.get("port"));
+        viewModel.et_path.setText(map.get("path"));
+        viewModel.et_clientid.setText(map.get("clientId"));
+        viewModel.et_username.setText(map.get("username"));
+        viewModel.et_password.setText(map.get("password"));
+        viewModel.et_alive.setText(map.get("alive"));
+        viewModel.et_timeout.setText(map.get("timeout"));
+        viewModel.et_topic.setText(map.get("topic"));
+        viewModel.et_message.setText(map.get("message"));
+        viewModel.cb_auto.setChecked(Objects.equals(map.get("auto"), "yes"));
+        viewModel.cb_session.setChecked(Objects.equals(map.get("session"),"yes"));
+        int position = viewModel.getProtocolPosition(map.get("protocol"));
         viewModel.spinner.setSelection(position,true);
     }
 
-    public boolean saveValue(){
-        settings.put("name",viewModel.et_name.getText().toString());
-        settings.put("ip",viewModel.et_ip.getText().toString());
-        settings.put("port",viewModel.et_port.getText().toString());
-        settings.put("username",viewModel.et_username.getText().toString());
-        settings.put("password",viewModel.et_password.getText().toString());
-        settings.put("clientId",viewModel.et_clientid.getText().toString());
-        settings.put("alive",viewModel.et_alive.getText().toString());
-        settings.put("timeout",viewModel.et_timeout.getText().toString());
-        settings.put("topic",viewModel.et_topic.getText().toString());
-        settings.put("message",viewModel.et_message.getText().toString());
-        settings.put("auto",viewModel.cb_auto.isChecked()?"yes":"no");
-        settings.put("session",viewModel.cb_session.isChecked()?"yes":"no");
+    public boolean save(){
+        map.put("name",viewModel.et_name.getText().toString());
+        map.put("host",viewModel.et_host.getText().toString());
+        map.put("port",viewModel.et_port.getText().toString());
+        map.put("path",viewModel.et_path.getText().toString());
+        map.put("username",viewModel.et_username.getText().toString());
+        map.put("password",viewModel.et_password.getText().toString());
+        map.put("clientId",viewModel.et_clientid.getText().toString());
+        map.put("alive",viewModel.et_alive.getText().toString());
+        map.put("timeout",viewModel.et_timeout.getText().toString());
+        map.put("topic",viewModel.et_topic.getText().toString());
+        map.put("message",viewModel.et_message.getText().toString());
+        map.put("auto",viewModel.cb_auto.isChecked()?"yes":"no");
+        map.put("session",viewModel.cb_session.isChecked()?"yes":"no");
         int pos = viewModel.spinner.getSelectedItemPosition();
-        settings.put("protocol", viewModel.getProtocol(pos));
+        map.put("protocol", viewModel.getProtocol(pos));
 
-        if(TextUtils.isEmpty(settings.get("name"))){
+        if(TextUtils.isEmpty(map.get("name"))){
             Utils.showToast(getActivity(),"连接名称不能为空");
             return false;
         }
-        if(TextUtils.isEmpty(settings.get("clientId"))){
-            Utils.showToast(getActivity(),"客户端ID不能为空");
+        /*
+        if(TextUtils.isEmpty(map.get("clientId"))){
+            //Utils.showToast(getActivity(),"客户端ID不能为空");
+            map.put("clientId", Utils.getIMEIDeviceId(getContext()));
+        }
+         */
+        if(TextUtils.isEmpty(map.get("host"))){
+            Utils.showToast(getActivity(),"主机地址不能为空");
             return false;
         }
-        if(TextUtils.isEmpty(settings.get("ip"))){
-            Utils.showToast(getActivity(),"IP地址不能为空");
+        if(TextUtils.isEmpty(map.get("port"))){
+            map.put("port","1883");
+        }
+        if(TextUtils.isEmpty(map.get("timeout"))){
+            map.put("timeout","30");
+        }
+        if(TextUtils.isEmpty(map.get("alive"))){
+            map.put("alive","60");
+        }
+        Log.w(TAG, map.toString());
+        if(BrokerHelper.save(map)){
+            Utils.showToast(getActivity(),"保存成功");
+            return true;
+        }else{
+            Utils.showToast(getActivity(),"保存失败");
             return false;
         }
-        if(TextUtils.isEmpty(settings.get("port"))){
-            settings.put("port","1883");
-        }
-        if(TextUtils.isEmpty(settings.get("timeout"))){
-            settings.put("timeout","30");
-        }
-        if(TextUtils.isEmpty(settings.get("alive"))){
-            settings.put("alive","60");
-        }
-
-        SPUtils.getInstance().putMap(Constants.BROKER, settings);
-        return true;
+        //SPUtils.getInstance().putMap(Constants.BROKER, map);
+        //return true;
     }
 }

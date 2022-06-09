@@ -7,6 +7,11 @@
         <item>智能盒</item>
         <item>综合类</item>
     </string-array>
+    <string-array name="panel_types">
+        <item>普通按钮</item>
+        <item>开关按钮</item>
+        <item>展示面板</item>
+    </string-array>
     <string-array name="protocol_labels">
         <item>TCP</item>
         <item>TCP(SSL)</item>

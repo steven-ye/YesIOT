@@ -8,6 +8,7 @@ import android.util.Log;
 public class MQTTConnection implements ServiceConnection {
 
     private MQTTService mqttService;
+
     private static MQTTService.MQTTCallBack mqttCallBack;
 
     private static MQTTConnection instance;

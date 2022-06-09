@@ -6,25 +6,42 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/main_panels"
-    tools:context=".ui.control.ControlFragment">
+    tools:context=".ui.device.ControlFragment">
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tab_layout"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/bg_grey_light"
-        app:tabSelectedTextColor="@android:color/holo_blue_dark"
-        app:tabIndicatorColor="@android:color/transparent">
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
+        android:layout_height="100dp"
+        android:background="@mipmap/iot_1">
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:text="@string/option_mqtt"/>
+            android:layout_alignParentBottom="true"
+            app:tabSelectedTextColor="@android:color/holo_blue_light"
+            app:tabIndicatorColor="@android:color/holo_blue_light"
+            app:tabBackground="@drawable/selector_panel">
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/option_mqtt"/>
 
-        <com.google.android.material.tabs.TabItem
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/option_tcp"/>
+        </com.google.android.material.tabs.TabLayout>
+
+        <TextView
+            android:id="@+id/text_status"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/option_tcp"/>
-    </com.google.android.material.tabs.TabLayout>
+            android:layout_height="50dp"
+            android:layout_marginEnd="10dp"
+            android:gravity="center_vertical"
+            android:layout_alignParentEnd="true"
+            android:layout_alignBottom="@id/tab_layout"
+            android:layout_alignBaseline="@id/tab_layout"
+            android:text="设备在线"/>
+    </RelativeLayout>
 
     <com.example.yesiot.DragLayout
         android:id="@+id/dragLayout"

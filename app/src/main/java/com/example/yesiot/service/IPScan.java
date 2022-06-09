@@ -67,14 +67,14 @@ public class IPScan {
         Log.i(TAG, "Current IP is "+ipPrefix+ipCurrent);
         msg = new Message();
         msg.what = MSG_START_SCANNING;
-        msg.arg1 = Constants.SCANNING_THREADS_COUNT;
+        msg.arg1 = Constants.SCANNING_THREAD_COUNT;
         handler.sendMessage(msg);
 
         scanThreads.clear();
-        int step = IP_SEGMENT_MAX / Constants.SCANNING_THREADS_COUNT;
+        int step = IP_SEGMENT_MAX / Constants.SCANNING_THREAD_COUNT;
         int start = 0;
         int stop = step;
-        for (int i = 0; i < Constants.SCANNING_THREADS_COUNT; i++) {
+        for (int i = 0; i < Constants.SCANNING_THREAD_COUNT; i++) {
             IPScanThread thread = new IPScanThread(handler, ipPrefix, ipCurrent);
             thread.setCounter(i);
             thread.setStartIp(start);
@@ -82,7 +82,7 @@ public class IPScan {
             thread.start();
             scanThreads.add(thread);
             start += step;
-            stop = i == Constants.SCANNING_THREADS_COUNT - 1 ? IP_SEGMENT_MAX : stop + step;
+            stop = i == Constants.SCANNING_THREAD_COUNT - 1 ? IP_SEGMENT_MAX : stop + step;
         }
     }
     public void stopScanning() {

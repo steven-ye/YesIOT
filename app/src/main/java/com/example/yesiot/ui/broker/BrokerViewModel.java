@@ -7,18 +7,15 @@ import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
-
 import com.example.yesiot.R;
 
 public class BrokerViewModel {
     private String[] protocols;
     public EditText et_name;
-    public EditText et_ip;
-    public EditText et_clientid;
+    public EditText et_host;
     public EditText et_port;
+    public EditText et_path;
+    public EditText et_clientid;
     public EditText et_alive;
     public EditText et_timeout;
     public EditText et_username;
@@ -28,15 +25,15 @@ public class BrokerViewModel {
     public CheckBox cb_auto;
     public CheckBox cb_session;
     public CheckedTextView ctv_lastwill;
-    public Button btn_okay;
     public Spinner spinner;
     public View row_lastwill;
 
     public BrokerViewModel(View root){
         et_name = root.findViewById(R.id.link_name);
-        et_ip = root.findViewById(R.id.link_ip);
+        et_host = root.findViewById(R.id.link_host);
         et_clientid = root.findViewById(R.id.clientid);
-        et_port = root.findViewById(R.id.port);
+        et_port = root.findViewById(R.id.link_port);
+        et_path = root.findViewById(R.id.link_path);
         et_alive = root.findViewById(R.id.link_alive);
         et_timeout = root.findViewById(R.id.link_timeout);
         et_username = root.findViewById(R.id.link_username);
@@ -46,8 +43,7 @@ public class BrokerViewModel {
         cb_auto = root.findViewById(R.id.checkbox_auto);
         cb_session = root.findViewById(R.id.checkbox_session);
         ctv_lastwill = root.findViewById(R.id.lastwill);
-        btn_okay = root.findViewById(R.id.button_okay);
-        spinner = root.findViewById(R.id.protocol);
+        spinner = root.findViewById(R.id.link_protocol);
         row_lastwill = root.findViewById(R.id.row_lastwill);
     }
 

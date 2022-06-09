@@ -21,20 +21,50 @@ import android.util.DisplayMetrics;
 import android.util.Size;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.NotificationCompat;
 
 import com.example.yesiot.IApplication;
 import com.example.yesiot.MainActivity;
 import com.example.yesiot.R;
+import com.example.yesiot.object.Constants;
+import com.example.yesiot.object.Device;
 import com.example.yesiot.service.MQTTService;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 public class Utils {
+    public static String getTopic(Device device){
+        String topic = device.getTopic();
+        if(!TextUtils.isEmpty(topic))return topic;
+        topic = Constants.TOPIC_PREFIX;
+        if(!TextUtils.isEmpty(device.getTheme())){
+            topic = topic + device.getTheme() + "/";
+        }
+        if(!TextUtils.isEmpty(device.getCode())) {
+            topic = topic + "/" + device.getCode();
+        }
+        return topic + "/cmd";
+    }
+    public static String getSubTopic(Device device){
+        String topic = device.getSub();
+        if(!TextUtils.isEmpty(topic))return topic;
+        topic = Constants.TOPIC_PREFIX;
+        if(!TextUtils.isEmpty(device.getTheme())){
+            topic = topic + "/" + device.getTheme();
+        }
+        if(!TextUtils.isEmpty(device.getCode())) {
+            topic = topic + "/" + device.getCode();
+        }
+        return topic + "/status";
+    }
+
     public static Size getScreenSize(Context context){
         DisplayMetrics dm = new DisplayMetrics();
         context.getDisplay().getRealMetrics(dm);
@@ -43,6 +73,17 @@ public class Utils {
 
         return new Size(width,height);
     }
+
+    public static int getScreenWidth(Context context){
+        DisplayMetrics dm = new DisplayMetrics();
+        context.getDisplay().getRealMetrics(dm);
+        return dm.widthPixels;
+    }
+    public static int getScreenHeight(Context context){
+        Size size = getScreenSize(context);
+        return size.getHeight();
+    }
+
     public static void showToast(String message){
         showToast(IApplication._getContext(), message);
     }
@@ -50,40 +91,73 @@ public class Utils {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
-    public static void createNotification(Context context, String title, String message) {
-        String NOTIFICATION_ID = "channelId";
-        //获取系统提供的通知管理服务
-        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);//获取管理类的实例
-        //判断是否为8.0以上系统，是的话新建一个通道
+    public static void alert(Context context, String message){
+        String[] items = new String[]{message};
+        alert(context, items);
+    }
+
+    public static void alert(Context context, String[] items){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                .setCancelable(false)
+                .setIcon(R.drawable.ic_led)
+                .setTitle("温馨提示")
+                .setItems(items,null)
+                .setPositiveButton("确定", null);
+
+        builder.show();
+    }
+
+    public static void createNotification(Context context, String message){
+        String name = "channelName";
+        String CHANNEL_ID = context.getString(R.string.app_name);
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            //创建一个通道 一参：id  二参：name 三参：统通知的优先级
-            NotificationChannel channel = new NotificationChannel(NOTIFICATION_ID, "通知", NotificationManager.IMPORTANCE_HIGH);
-
-            channel.setVibrationPattern(new long[]{0});//通道来控制震动
-            // 允许通知使用震动，默认为false
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_HIGH);
             channel.enableVibration(true);
-            // 设置显示模式
-            //channel.setLockscreenVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-            manager.createNotificationChannel(channel);//创建
+            channel.setVibrationPattern(new long[]{3});
+            channel.enableLights(false);
+            channel.setSound(null, null);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
         }
+        notificationManager.notify(1,buildNotification(context, CHANNEL_ID, message));
+        //context.startForeground(NOTIFICATION_ID, buildNotification());
+    }
 
+    public static Notification buildNotification(Context context, String channel_id, String message) {
         Intent intent=new Intent(context, MainActivity.class);
         //PendingIntent点击通知后跳转，一参：context 二参：一般为0 三参：intent对象 四参：一般为0
         PendingIntent pendingIntent=PendingIntent.getActivity(context,1,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification notification = new NotificationCompat.Builder(context, NOTIFICATION_ID)
-                .setTicker("YesIOT通知") //Ticker是状态栏显示的提示
-                .setContentTitle(title)     //标题
-                .setContentText(message)    //内容
-                .setSmallIcon(R.drawable.ic_launcher_background) //图片
-                .setContentIntent(pendingIntent) //点击通知跳转
-                //.setFullScreenIntent(pendingIntent,true)
+        Notification.Builder builder = new Notification.Builder(context)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(context.getString(R.string.app_name))
+                .setContentText(message)
+                .setPriority(Notification.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
                 .setAutoCancel(true) //完成跳转自动取消通知
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setWhen(System.currentTimeMillis())
-                //.setDefaults(Notification.DEFAULT_ALL)
-                .build();
+                .setDefaults(NotificationCompat.FLAG_ONLY_ALERT_ONCE)
+                .setVibrate(new long[]{3})
+                .setSound(null);
 
-        manager.notify(1, notification);//让通知显示出来
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder.setChannelId(channel_id);
+        }
+        Notification notification = builder.build();
+        notification.flags = Notification.FLAG_FOREGROUND_SERVICE;
+        return notification;
+    }
+
+    /*
+     * 是否为浮点数？double或float类型。
+     * @param str 传入的字符串。
+     * @return 是浮点数返回true,否则返回false。
+     */
+    public static boolean isDoubleOrFloat(String str) {
+        if(TextUtils.isEmpty(str))return false;
+        Pattern pattern = Pattern.compile("^[-\\+]?[.\\d]*$");
+        return pattern.matcher(str).matches();
     }
 
     /** 根据路径获取Bitmap图片
@@ -272,4 +346,14 @@ public class Utils {
     }
 
 
+
+    public static int dp2px(Context context, float dp) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dp * scale + 0.5f);
+    }
+
+    public static int px2dp(Context context, float px) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (px / scale + 0.5f);
+    }
 }

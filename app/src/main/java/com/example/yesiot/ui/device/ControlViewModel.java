@@ -1,4 +1,4 @@
-package com.example.yesiot.ui.control;
+package com.example.yesiot.ui.device;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -13,15 +13,15 @@ import java.util.List;
 public class ControlViewModel extends ViewModel {
 
     final MutableLiveData<Boolean> mLocked = new MutableLiveData<>();
-    final MutableLiveData<String> mCloud = new MutableLiveData<>();
     final MutableLiveData<List<Panel>> mList = new MutableLiveData<>();
     final MutableLiveData<Integer> mOption = new MutableLiveData<>();
+    final MutableLiveData<String>  mStatus= new MutableLiveData<>();
 
     public ControlViewModel() {
         mLocked.setValue(true);
-        mCloud.setValue("unknown");
         mList.setValue(new ArrayList<>());
         mOption.setValue(0);
+        mStatus.setValue("");
     }
 
     public LiveData<Boolean> getLocked() {
@@ -29,12 +29,6 @@ public class ControlViewModel extends ViewModel {
     }
     public void setLocked(Boolean locked) {
         mLocked.postValue(locked);
-    }
-    public LiveData<String> getCloud() {
-        return mCloud;
-    }
-    public void setCloud(String status) {
-        mCloud.setValue(status);
     }
     public LiveData<List<Panel>> getList() {
         return mList;
@@ -50,5 +44,11 @@ public class ControlViewModel extends ViewModel {
     }
     public void setOptionValue(int val) {
         mOption.setValue(val);
+    }
+    public LiveData<String> getStatus() {
+        return mStatus;
+    }
+    public void setStatus(String status) {
+        mStatus.setValue(status);
     }
 }

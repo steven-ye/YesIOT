@@ -24,7 +24,7 @@ abstract class AbstractHelper {
         return map;
     }
 
-    private static Map<String, String> getMap(Cursor cursor){
+    protected static Map<String, String> getMap(Cursor cursor){
         Map<String, String> map = new HashMap<>();
         for(String name: cursor.getColumnNames()){
             map.put(name,getColumn(cursor,name));
@@ -52,7 +52,7 @@ abstract class AbstractHelper {
         return list;
     }
 
-    public static boolean remove(String table, int id){
+    public static boolean delete(String table, int id){
         DatabaseHelper dbHelper = DatabaseHelper.getInstance();
         int num = dbHelper.delete(table,"id=?",new String[]{id+""});
         return num>0;

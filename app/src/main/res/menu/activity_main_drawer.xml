@@ -7,26 +7,26 @@
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_baseline_home_24"
-            android:title="@string/menu_home" />
+            android:title="@string/nav_home" />
         <item
-            android:id="@+id/nav_setting"
-            android:icon="@drawable/ic_menu_settings"
-            android:title="@string/menu_setting" />
+            android:id="@+id/nav_devices"
+            android:icon="@drawable/ic_led"
+            android:title="@string/nav_devices" />
         <item
-            android:id="@+id/nav_device"
-            android:icon="@drawable/ic_add_circle"
-            android:title="@string/menu_add_device" />
+            android:id="@+id/nav_brokers"
+            android:icon="@drawable/ic_baseline_dns_24"
+            android:title="@string/nav_brokers" />
         <item
             android:id="@+id/nav_esptouch"
             android:icon="@drawable/ic_baseline_online_prediction_24"
-            android:title="@string/menu_esptouch" />
+            android:title="@string/nav_esptouch" />
         <item
             android:id="@+id/nav_socket"
             android:icon="@drawable/ic_connecting"
-            android:title="@string/menu_socket" />
+            android:title="@string/nav_socket" />
         <item
             android:id="@+id/nav_about"
             android:icon="@drawable/ic_info_circle"
-            android:title="@string/menu_about" />
+            android:title="@string/nav_about" />
     </group>
 </menu>

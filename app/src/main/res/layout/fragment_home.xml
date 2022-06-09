@@ -4,8 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg_grey_light"
     android:orientation="vertical"
     tools:context=".ui.home.HomeFragment">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:gravity="center"
+        android:background="@mipmap/iot_1"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        android:text="@string/home_banner_title"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:gravity="center_vertical"
+        android:textColor="@color/colorPrimary"
+        android:text="所有设备"
+        app:drawableStartCompat="@drawable/ic_baseline_dashboard_24" />
+
     <com.scwang.smart.refresh.layout.SmartRefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
@@ -18,7 +38,7 @@
         app:srlEnableLoadMoreWhenContentNotFull="false">
         <!--srlAccentColor srlPrimaryColor 将会改变 Header 和 Footer 的主题颜色-->
         <!--srlEnablePreviewInEditMode 可以开启和关闭预览功能-->
-        <com.scwang.smart.refresh.footer.ClassicsFooter
+        <com.scwang.smart.refresh.header.ClassicsHeader
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
@@ -27,13 +47,15 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <ListView
-                android:id="@+id/devListView"
+            <GridView
+                android:id="@+id/devGridView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:cacheColorHint="@android:color/transparent"
-                android:divider="#EDEDEF"
-                android:dividerHeight="1dp" />
+                android:horizontalSpacing="10dp"
+                android:verticalSpacing="10dp"
+                android:numColumns="2"
+                android:gravity="center"
+                android:padding="10dp" />
 
             <!-- Here is the view to show if the list is emtpy -->
             <LinearLayout
@@ -48,6 +70,11 @@
                     android:layout_height="100dp"
                     android:gravity="center"
                     app:srcCompat="@drawable/ic_nodevice" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/text_devices_empty"/>
 
             </LinearLayout>
 

@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="colorPrimaryDark">#FF3197FF</color>
+    <color name="colorPrimary">#FF3197FF</color>
     <color name="colorAccent">#FFBB86FC</color>
-    <color name="colorPrimary">#FF6200EE</color>
-    <color name="colorPrimaryDark">#FF3700B3</color>
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
+    <color name="background_main">#FFF5F5F5</color>
+    <color name="border_grey">#F0C0C0C0</color>
+    <color name="border_grey_light">#F0E0E0E0</color>
+    <color name="border_blue">#F0C0C0C0</color>
+    <color name="border_accent">#C06200EE</color>
     <color name="bg_red">#F0FF0000</color>
     <color name="bg_red_dark">#F0E92F2F</color>
     <color name="bg_blue">#F00099CC</color>
@@ -16,18 +21,19 @@
     <color name="bg_grey_dark">#F0666666</color>
     <color name="bg_grey_pressed">#50909090</color>
     <color name="bg_grey_light">#F0F0F0F0</color>
+    <color name="bg_grey_lighter">#F9F9F9F9</color>
+    <color name="bg_grey_translucent">#66CCCCCC</color>
     <color name="bg_button_blue">#3c8dc4</color>
     <color name="bg_button_grey">#b7585556</color>
     <color name="panel_on">#FF0000</color>
     <color name="panel_off">#0000FF</color>
     <color name="bg_panel_on">#99FF0000</color>
     <color name="bg_panel_off">#993197FF</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="light_gray">#A9A9A9</color>					<!--灰色 -->
+    <color name="transparent">#00FFFFFF</color>
+    <color name="translucent">#33FFFFFF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
     <color name="light_grey">#A9A9A9</color>					<!--灰色 -->
-    <color name="gray">#808080</color>					<!--灰色 -->
     <color name="grey">#808080</color>					<!--灰色 -->
-    <color name="darkgray">#393939</color>				<!--暗灰色 -->
-    <color name="darkgrey">#393939</color>				<!--暗灰色 -->
+    <color name="dark_grey">#393939</color>				<!--暗灰色 -->
 </resources>

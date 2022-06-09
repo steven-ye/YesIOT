@@ -11,13 +11,12 @@
         android:id="@+id/action_add"
         android:orderInCategory="102"
         android:icon="@drawable/ic_baseline_add_circle_outline_24"
-        android:title="@string/menu_add_device"
+        android:title="@string/nav_device"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_lock"
-        android:orderInCategory="102"
-        android:icon="@drawable/ic_baseline_lock_24"
-        android:title="@string/action_lock"
-        app:showAsAction="always" />
-
+        android:id="@+id/action_setting"
+        android:icon="@drawable/ic_baseline_settings_24"
+        android:orderInCategory="103"
+        android:title="@string/edit"
+        app:showAsAction="ifRoom" />
 </menu>

@@ -15,19 +15,26 @@ import java.util.List;
 public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.ViewHolder>{
     ViewGroup parent;
     private LayoutInflater inflater;
-    private int[] typeList;
-    private List<State> stateList=new ArrayList<>();
+    List<Integer> typeList = new ArrayList<>();
+    private int selectedPosition = 0;
 
     public TypeAdapter(int[] list){
-        typeList = list;
-        for(int ignored :list){
-            State state = new State();
-            stateList.add(state);
+        typeList.clear();
+        for(int val: list){
+            typeList.add(val);
         }
     }
 
+    public void setList(int[] list){
+        typeList.clear();
+        for(int val: list){
+            typeList.add(val);
+        }
+        notifyDataSetChanged();
+    }
+
     public void setSelected(int position){
-        stateList.get(position).setSelected(true);
+        selectedPosition = position;
     }
 
     @NonNull
@@ -44,13 +51,13 @@ public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.ViewHolder>{
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        View v = inflater.inflate(typeList[position],null);
+        View v = inflater.inflate(typeList.get(position),null);
         final LinearLayout linearLayout = (LinearLayout)holder.view;
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         linearLayout.removeAllViews();
         linearLayout.addView(v,lp);
-        if(stateList.get(position).isSelected()){
+        if(selectedPosition == position){
             v.setBackgroundResource(R.drawable.border_blue);
         }else{
             v.setBackgroundResource(R.drawable.border_grey);
@@ -59,17 +66,14 @@ public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.ViewHolder>{
             if(listener !=null){
                 listener.onItemClick(v1);
             }
-            for (State state : stateList) {
-                state.setSelected(false);
-            }
-            stateList.get(position).setSelected(true);
+            selectedPosition = position;
             notifyDataSetChanged();
         });
     }
 
     @Override
     public int getItemCount() {
-        return typeList.length;
+        return typeList.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder{
@@ -77,16 +81,6 @@ public class TypeAdapter extends RecyclerView.Adapter<TypeAdapter.ViewHolder>{
         public ViewHolder(View view){
             super(view);
             this.view = view;
-        }
-    }
-
-    static public class State {
-        private boolean isSelected;
-        public boolean isSelected() {
-            return isSelected;
-        }
-        public void setSelected(boolean selected) {
-            isSelected = selected;
         }
     }
 

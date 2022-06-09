@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_grey_light"
+    android:orientation="vertical"
+    tools:context=".ui.home.HomeFragment">
+    <ListView
+        android:id="@+id/broker_listview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp"
+        android:paddingHorizontal="10dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="10dp"
+        android:choiceMode="singleChoice"/>
+
+    <!-- Here is the view to show if the list is emtpy -->
+    <LinearLayout
+        android:id="@+id/text_list_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/button_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:drawableStart="@drawable/ic_baseline_add_24"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:text="@string/text_add_broker" />
+    </LinearLayout>
+</LinearLayout>

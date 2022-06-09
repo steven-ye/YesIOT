@@ -68,6 +68,7 @@ public class DeviceAdapter extends BaseAdapter {
         }
         //设置内容
         viewHolder.textView.setText(device.getName());
+        viewHolder.tvBroker.setText(device.getBroker());
         //设置状态
         viewHolder.statusView.setText(device.getStatus());
         //设置icon
@@ -126,6 +127,7 @@ public class DeviceAdapter extends BaseAdapter {
     private static final class ViewHolder {
         ImageView imageView;//图片
         TextView textView;  //内容
+        TextView tvBroker;
         TextView statusView;
         ImageView iconView;
         LinearLayout actionIcon;
@@ -142,6 +144,7 @@ public class DeviceAdapter extends BaseAdapter {
         ViewHolder(View view) {
             imageView = view.findViewById(R.id.listview_item_image);
             textView = view.findViewById(R.id.listview_item_name);
+            tvBroker = view.findViewById(R.id.listview_broker_name);
             statusView = view.findViewById(R.id.listview_item_status);
             iconView = view.findViewById(R.id.listview_item_icon);
             actionIcon = view.findViewById(R.id.listview_action_icon);

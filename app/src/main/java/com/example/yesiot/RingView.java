@@ -1,42 +1,22 @@
 package com.example.yesiot;
 
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.graphics.Shader;
 import android.util.AttributeSet;
-import android.util.TypedValue;
-import android.view.View;
 
 import androidx.annotation.Nullable;
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
-public class RingView extends View {
-    Context context;
-    float mRadius;
-    float progress = 0;
-    float nowprogress = 0;
-    RectF  rect= new RectF();
-    Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    ObjectAnimator animator;
+public class RingView extends DataView {
+    protected float mMaxValue=360;
 
-    private String mText="温度";
-    private String mUnit="℃";
-    private float mMaxValue=100;
-    private final int mTextColor;
-    private final float mTextSize;
-    private final float mRingWidth;
-
-    public RingView(Context context) {
+    public RingView(Context context){
         this(context,null);
     }
-
     public RingView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs,0);
     }
@@ -44,65 +24,8 @@ public class RingView extends View {
     public RingView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
-
     public RingView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr);
-        this.context = context;
-        @SuppressLint("Recycle") TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.RingView);
-        mTextColor = typedArray.getColor(R.styleable.RingView_textColor, Color.BLACK);
-        mTextSize = typedArray.getDimension(R.styleable.RingView_textSize, 0);
-        mRingWidth = typedArray.getDimension(R.styleable.RingView_ringWidth, 0);
-        mRadius = typedArray.getDimension(R.styleable.RingView_ringRadius, 0);
-        mMaxValue = typedArray.getFloat(R.styleable.RingView_maxValue, mMaxValue);
-        progress = typedArray.getFloat(R.styleable.RingView_value, progress);
-        String text = typedArray.getString(R.styleable.RingView_text);
-        String unit = typedArray.getString(R.styleable.RingView_unit);
-        typedArray.recycle();
-        mText = text==null?mText:text;
-        mUnit = unit==null?mUnit:unit;
-        init();
-    }
-    /**
-     * 初始化
-     */
-    private void init()
-    {
-        this.setProgress(progress);
-        animator= ObjectAnimator.ofFloat(this, "progress", nowprogress, getProgress());
-        //     animator.setRepeatCount(-1);
-        animator.setDuration(1000);
-        animator.setInterpolator(new FastOutSlowInInterpolator());
-    }
-
-    public void setText(String text){
-        mText = text;
-    }
-    public void setUnit(String unit){
-        mUnit = unit;
-    }
-    public void setMaxValue(float maxValue){
-        mMaxValue = maxValue;
-    }
-    public float getProgress() {
-        return progress;
-    }
-
-    public void setProgress(float progress) {
-        nowprogress = this.progress;
-        this.progress = progress;
-        invalidate();
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        animator.start();
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        animator.end();
+        super(context, attrs,defStyleAttr,defStyleRes);
     }
 
     @Override
@@ -127,7 +50,7 @@ public class RingView extends View {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(ringWidth);
         //paint.setStrokeWidth(dpToPixel(20));
-        paint.setColor(Color.parseColor("#EBEBEB"));
+        paint.setColor(Color.parseColor("#C0C0E0"));
         //paint.setStrokeCap(Paint.Cap.ROUND);
         canvas.drawArc(rect,180,360,false,paint);
 
@@ -141,25 +64,16 @@ public class RingView extends View {
 
         canvas.drawArc(rect,180,sweepAngle,false,paint);
 
-
-        float textSize = mTextSize == 0 ? radius/5 : mTextSize;
+        float unitSize = mUnitSize == 0 ? radius/5 : dp2px(mUnitSize);
+        float textSize = mTextSize == 0 ? (float)(unitSize * 1.2) : dp2px(mTextSize);
 
         paint.setShader(null);
         paint.setTextSize(textSize);
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setColor(mTextColor);
         paint.setStyle(Paint.Style.FILL);
-        canvas.drawText(getProgress()+" "+ mUnit, centerX, centerY-getFontHeight() , paint);
-        canvas.drawText(mText, centerX, centerY+getFontHeight(), paint);
-    }
-
-    public float getFontHeight() {
-        Paint.FontMetrics fm = paint.getFontMetrics();
-        return fm.descent - fm.ascent;
-    }
-
-    private int dp2px(float dpVal) {
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                dpVal, context.getResources().getDisplayMetrics());
+        canvas.drawText(mText, centerX, centerY+getFontHeight()/2, paint);
+        paint.setTextSize(unitSize);
+        canvas.drawText(getProgress()+" "+ mUnit, centerX, centerY-getFontHeight()/2 , paint);
     }
 }

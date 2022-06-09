@@ -11,14 +11,16 @@ import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.customview.widget.ViewDragHelper;
 
+import com.example.yesiot.object.Panel;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DragLayout extends RelativeLayout
 {
     private ViewDragHelper viewDragHelper;
     private boolean draggable = true;
-    private Map<String,String> map=new HashMap<>();
 
     public DragLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -62,10 +64,27 @@ public class DragLayout extends RelativeLayout
                 //当手指释放的时候回调
                 @Override
                 public void onViewReleased(@NonNull View child, float xvel, float yvel) {
-                    String tag = (String) child.getTag();
                     int left = child.getLeft();
                     int top = child.getTop();
-                    map.put(tag,left+"#"+top);
+
+                    int mod = top % 10;
+                    top = top / 10;
+                    top = top * 10;
+                    if(mod > 5){
+                        top = top + 10;
+                    }
+                    mod = left % 10;
+                    left = left / 10;
+                    left = left * 10;
+                    if(mod > 5){
+                        left = left + 10;
+                    }
+                    child.setLeft(left);
+                    child.setTop(top);
+
+                    Panel panel = ((PanelLayout)child).getPanel();
+                    panel.pos = left+"#"+top;
+
                     //System.out.println("<onViewReleased>"+tag+":"+child.getLeft()+"#"+child.getTop());
                     if(listener != null){
                         listener.onPositionChanged(child, left, top);
@@ -120,58 +139,52 @@ public class DragLayout extends RelativeLayout
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
-            String tag = (String)child.getTag();
-            if(TextUtils.isEmpty(tag)||map.get(tag)==null){
-                //child.setTag("TAG_"+count);
-                //map.put("TAG_"+count,child.getLeft()+"#"+child.getTop());
-                continue;
-            }
-            String xy = map.get(tag).toString();
-            //System.out.println("<onLayout>"+tag+": "+xy);
-            if (!TextUtils.isEmpty(xy)&&!xy.equals("0")) {
-                String[] xys = xy.split("#");
+            if(child instanceof PanelLayout){
+                PanelLayout view = (PanelLayout)getChildAt(i);
+                Panel panel = view.getPanel();
+                String[] xys = panel.pos.split("#");
                 if (xys.length == 2) {
-                    child.layout(Integer.parseInt(xys[0]), Integer.parseInt(xys[1]), child.getMeasuredWidth() + Integer.parseInt(xys[0]), child.getMeasuredHeight() + Integer.parseInt(xys[1]));
+                    int left = Integer.parseInt(xys[0]);
+                    int top = Integer.parseInt(xys[1]);
+                    int right = left + view.getMeasuredWidth();
+                    int bottom = top + view.getMeasuredHeight();
+                    view.layout(left, top, right, bottom);
                 }
             }
         }
     }
 
-    @Override
-    protected void onFinishInflate(){
-        super.onFinishInflate();
-        int count = getChildCount();
-        for(int i=0;i<count;i++){
-            View child = getChildAt(i);
-            String tag = (String)child.getTag();
-            if(TextUtils.isEmpty(tag)){
-                tag="TAG_"+count;
-                child.setTag("tag");
-            }
-            map.put(tag,child.getLeft()+"#"+child.getRight());
-            System.out.println("<onFinishInflate>"+tag+":"+child.getLeft()+"#"+child.getRight());
+    public void addView(View view) {
+        super.addView(view);
+        if(null != itemClickListener){
+            view.setOnClickListener(itemClickListener);
+        }
+        if(null != itemLongClickListener){
+            view.setOnLongClickListener(itemLongClickListener);
         }
     }
 
-    public void setMap(Map<String,String> map){
-        this.map=map;
-    }
-    public Map<String,String> getMap(){
-        return map;
-    }
-    public void setPos(String tag, String pos){
-        map.put(tag,pos);
-    }
-    public void setPos(String tag, int left, int top){
-        String pos = left+"#"+top;
-        map.put(tag,pos);
+    public void clearSelected(){
+        for(int i=0;i<getChildCount();i++){
+            View child = getChildAt(i);
+            if(child.isSelected())child.setSelected(false);
+        }
     }
 
-    public boolean getDraggable() {
+    public boolean isDraggable() {
         return draggable;
     }
     public void setDraggable(boolean flag) {
         draggable = flag;
+    }
+
+    private View.OnClickListener itemClickListener;
+    public void setOnItemClickListener(View.OnClickListener clickListener){
+        itemClickListener = clickListener;
+    }
+    private View.OnLongClickListener itemLongClickListener;
+    public void setOnItemLongClickListener(View.OnLongClickListener clickListener){
+        itemLongClickListener = clickListener;
     }
 
     private OnChangeListener listener;

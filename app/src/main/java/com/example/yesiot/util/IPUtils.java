@@ -37,7 +37,7 @@ public class IPUtils {
             Enumeration<NetworkInterface> nis = NetworkInterface.getNetworkInterfaces();
             InetAddress ia = null;
             while (nis.hasMoreElements()) {
-                NetworkInterface ni = (NetworkInterface) nis.nextElement();
+                NetworkInterface ni = nis.nextElement();
                 Enumeration<InetAddress> ias = ni.getInetAddresses();
                 while (ias.hasMoreElements()) {
                     ia = ias.nextElement();

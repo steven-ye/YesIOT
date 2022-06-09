@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,7 @@ import com.espressif.iot.esptouch.util.TouchNetUtil;
 import com.example.esptouch.EspTouchFragmentAbs;
 import com.example.yesiot.IApplication;
 import com.example.yesiot.R;
+import com.example.yesiot.util.Utils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -155,6 +157,11 @@ public class EspTouchFragment extends EspTouchFragmentAbs {
         byte[] broadcast = {(byte) (mViewModel.packageModeGroup.getCheckedRadioButtonId() == R.id.packageBroadcast
                 ? 1 : 0)};
 
+        if(TextUtils.isEmpty(pwdStr)){
+            Utils.alert(getContext(),"密码不能为空");
+            mViewModel.apPasswordEdit.requestFocus();
+            return;
+        }
         if (mTask != null) {
             mTask.cancelEsptouch();
         }

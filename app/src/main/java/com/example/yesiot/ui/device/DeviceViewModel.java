@@ -1,5 +1,6 @@
 package com.example.yesiot.ui.device;
 
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckedTextView;
@@ -7,7 +8,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.example.yesiot.R;
+import com.example.yesiot.object.Constants;
 import com.example.yesiot.object.Device;
+import com.example.yesiot.util.SPUtils;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -16,6 +19,7 @@ class DeviceViewModel {
     final TextInputEditText et_code;
     final TextInputEditText et_theme;
     final TextInputEditText et_ip;
+    final TextInputEditText et_port;
     final TextInputEditText et_sub;
     final TextInputEditText et_topic;
     final TextInputEditText et_payload;
@@ -23,9 +27,8 @@ class DeviceViewModel {
     final TextInputLayout layout_code;
     final TextInputLayout layout_theme;
     final TextInputLayout layout_ip;
-    final LinearLayout row_device_option;
-    final CheckedTextView device_option;
     final ImageView device_image;
+
 
     Device device;
 
@@ -35,6 +38,7 @@ class DeviceViewModel {
         et_theme = root.findViewById(R.id.device_theme);
         et_code = root.findViewById(R.id.device_code);
         et_ip = root.findViewById(R.id.device_ip);
+        et_port = root.findViewById(R.id.device_port);
         et_sub = root.findViewById(R.id.device_sub);
         et_topic = root.findViewById(R.id.device_topic);
         et_payload = root.findViewById(R.id.device_payload);
@@ -42,10 +46,9 @@ class DeviceViewModel {
         layout_code = root.findViewById(R.id.layout_device_code);
         layout_theme = root.findViewById(R.id.layout_device_theme);
         layout_ip = root.findViewById(R.id.layout_device_ip);
-        device_option = root.findViewById(R.id.device_option);
-        row_device_option = root.findViewById(R.id.row_device_option);
 
         device = new Device();
+        device.setBrokerId(SPUtils.getInstance().getInt("broker_id"));
     }
 
     public Device getDevice(){
@@ -57,6 +60,7 @@ class DeviceViewModel {
         et_code.setText(device.getCode());
         et_theme.setText(device.getTheme());
         et_ip.setText(device.getIp());
+        et_port.setText(device.getPort()+"");
         et_sub.setText(device.getSub());
         et_topic.setText(device.getTopic());
         et_payload.setText(device.getPayload());
@@ -74,5 +78,11 @@ class DeviceViewModel {
         device.setSub(et_sub.getText().toString());
         device.setTopic(et_topic.getText().toString());
         device.setPayload(et_payload.getText().toString());
+        String strPort = et_port.getText().toString();
+        int port = Constants.TCP_SERVER_PORT;
+        if(!TextUtils.isEmpty(strPort) && Integer.parseInt(strPort)>0){
+            port = Integer.parseInt(strPort);
+        }
+        device.setPort(port);
     }
 }

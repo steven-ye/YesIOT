@@ -74,85 +74,83 @@
                     android:singleLine="true"
                     android:hint="@string/device_theme" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layout_device_ip"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                app:counterMaxLength="50">
+                android:orientation="horizontal">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_device_ip"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="4"
+                    android:layout_marginTop="10dp"
+                    app:counterMaxLength="50">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/device_ip"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:hint="@string/device_ip" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_device_port"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="10dp"
+                    app:counterMaxLength="5">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/device_port"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:singleLine="true"
+                        android:hint="@string/device_port"
+                        android:text="80"/>
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/device_ip"
+                    android:id="@+id/device_sub"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:singleLine="true"
-                    android:hint="@string/device_ip" />
+                    android:hint="@string/device_sub_topic" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <CheckedTextView
-                android:id="@+id/device_option"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp"
-                android:background="@color/cardview_shadow_end_color"
-                android:checkMark="?android:attr/listChoiceIndicatorMultiple"
-                android:checked="true"
-                android:filterTouchesWhenObscured="true"
-                android:text="@string/expert_option" />
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp">
 
-            <LinearLayout
-                android:id="@+id/row_device_option"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/device_topic"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="3dp"
-                    android:text="@string/option_notice"/>
+                    android:singleLine="true"
+                    android:hint="@string/device_topic" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/device_payload"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="10dp">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/device_sub"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:hint="@string/device_sub_topic" />
-                </com.google.android.material.textfield.TextInputLayout>
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="10dp">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/device_topic"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:hint="@string/device_topic" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="10dp">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/device_payload"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:hint="@string/device_payload" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:hint="@string/device_payload" />
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
     </ScrollView>

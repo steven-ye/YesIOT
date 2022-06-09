@@ -4,5 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F5F5F5"
-    app:text="温度"
-    app:maxValue="200"/>
+    app:value="150"
+    app:maxValue="360"
+    app:text="温度"/>

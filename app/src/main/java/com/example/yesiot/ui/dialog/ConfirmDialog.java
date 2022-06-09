@@ -1,4 +1,4 @@
-package com.example.yesiot.dialog;
+package com.example.yesiot.ui.dialog;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -24,7 +24,7 @@ public class ConfirmDialog extends DialogFragment implements View.OnClickListene
         ConfirmDialog dialog = new ConfirmDialog(message);
         dialog.setCancelable(false);
         dialog.setOnConfirm(okayListener);
-        dialog.show(manager, "DialogFragment");
+        dialog.show(manager, "ConfirmDialog");
         return dialog;
     }
 

@@ -5,15 +5,15 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 
+import com.example.yesiot.object.MqttEvent;
 import com.example.yesiot.service.MQTTConnection;
 import com.example.yesiot.service.MQTTService;
 import com.example.yesiot.ui.home.HomeViewModel;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import com.example.yesiot.util.Utils;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -22,17 +22,23 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class MainActivity extends AppCompatActivity {
+import org.greenrobot.eventbus.EventBus;
 
+public class MainActivity extends AppCompatActivity  implements MQTTService.MQTTCallBack {
+    private final String TAG = "MainActivity";
     private AppBarConfiguration mAppBarConfiguration;
-    private HomeViewModel homeViewModel;
     private Intent mqttService;
     private MQTTConnection mqttConnection;
     private boolean bound;
+    private HomeViewModel homeViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        homeViewModel =
+                new ViewModelProvider(this).get(HomeViewModel.class);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -51,15 +57,18 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_setting, R.id.nav_socket, R.id.nav_about)
-                .setDrawerLayout(drawer)
+                R.id.nav_home)
+                .setOpenableLayout(drawer)
+                //.setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
         mqttService = new Intent(this, MQTTService.class);
         mqttConnection = MQTTConnection.getInstance();
-        startService();
+        mqttConnection.setMqttCallBack(this);
+        startMqttService();
     }
 
     @Override
@@ -72,8 +81,14 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 启动后台服务
      */
-    public void startService() {
-        stopService();
+    public void startMqttService() {
+        stopMqttService();
+        try{
+            Thread.sleep(500);
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }
+        homeViewModel.setCloud("unknown");
         Intent intent = new Intent(this, MQTTService.class);
         bound = bindService(intent, mqttConnection, Context.BIND_AUTO_CREATE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -83,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void stopService(){
+    public void stopMqttService(){
         if(bound)unbindService(mqttConnection);
         stopService(mqttService);
         bound = false;
@@ -92,6 +107,44 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopService();
+        stopMqttService();
+    }
+
+    @Override
+    public void onSuccess() {
+        Utils.showToast("MQTT服务器连接成功");
+        homeViewModel.setCloud("online");
+        //String topic = "/yesiot/status/"+Utils.getIMEIDeviceId(this);
+        //MQTTService.subscribe(topic);
+        //MQTTService.publish(topic,"#online");
+        MqttEvent event = new MqttEvent(MqttEvent.SUCCESS);
+        EventBus.getDefault().postSticky(event);
+    }
+
+    @Override
+    public void onFailure() {
+        Utils.showToast("MQTT服务器连接失败");
+        homeViewModel.setCloud("offline");
+        MqttEvent event = new MqttEvent(MqttEvent.FAILURE);
+        EventBus.getDefault().post(event);
+    }
+
+    @Override
+    public void onLost() {
+        Utils.showToast("MQTT服务器连接丢失");
+        homeViewModel.setCloud("offline");
+        MqttEvent event = new MqttEvent(MqttEvent.LOST);
+        EventBus.getDefault().post(event);
+    }
+
+    @Override
+    public void onMessageArrived(String topic, String message) {
+        Log.w(TAG, "["+topic+"] "+message);
+        //只处理来自单片机的信息
+        if(message.startsWith("#")){
+            message = message.replaceFirst("#","");
+        }
+        MqttEvent event = new MqttEvent(topic.trim(), message.trim());
+        EventBus.getDefault().post(event);
     }
 }

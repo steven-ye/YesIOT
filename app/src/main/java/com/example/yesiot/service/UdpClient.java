@@ -6,11 +6,23 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+import com.example.yesiot.IApplication;
+import com.example.yesiot.object.Constants;
+import com.example.yesiot.util.IPUtils;
+import com.example.yesiot.util.Utils;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by wujn on 2019/2/15.
@@ -18,126 +30,109 @@ import java.util.Arrays;
  * Function: udp client 64k限制
  */
 public class UdpClient {
-    /**
-     * single instance UdpClient
-     * */
-    private static UdpClient mSocketClient = null;
-    private UdpClient(){}
-    public static UdpClient getInstance(){
-        if(mSocketClient == null){
-            synchronized (UdpClient.class) {
-                mSocketClient = new UdpClient();
-            }
+    final String TAG = "UdpClient";
+    final int ON_ERROR = -1;
+    final int ON_START = 0;
+    final int ON_DATA = 1;
+    final int ON_STOP = 2;
+    final String BROAD_IP="255.255.255.255";
+
+    private DatagramSocket mSocket=null;
+    private ReceiveThread mReceiveThread;
+    private boolean connected = false;//thread flag
+
+    private int mPort;
+    private int mTimeout = 0;
+
+    private void initSocket() throws SocketException {
+        if(!isConnect()){
+            mSocket = new DatagramSocket(null);
+            mSocket.setReuseAddress(true);
+            mSocket.bind(new InetSocketAddress(mPort));
+            mSocket.setSoTimeout(mTimeout);
         }
-        return mSocketClient;
     }
 
+    private class SendThread extends Thread{
+        private final String ip;
+        private final int port;
+        private final String message;
 
-    String TAG_log = "Socket";
-    private DatagramSocket mSocket;
-    private DatagramPacket sendPacket;    //发送
-    private DatagramPacket receivePacket; //接受
-    //  private OutputStream mOutputStream;
-    //  private InputStream mInputStream;
-
-    private SocketThread mSocketThread;
-    private boolean isStop = false;//thread flag
+        public SendThread(String ip, int port, String message){
+            this.ip = ip;
+            this.port = port;
+            this.message = message;
+        }
+        @Override
+        public void run() {
+            try {
+                sleep(100); //ensure ReceiveThread is running;
+                initSocket();
+                InetAddress ipAddress = InetAddress.getByName(ip);
+                byte[] mBuffer = message.getBytes();
+                DatagramPacket sendPacket = new DatagramPacket(mBuffer, mBuffer.length, ipAddress, port);
+                mSocket.send(sendPacket);
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+                uiHandler.sendEmptyMessage(ON_ERROR);
+            }
+        }
+    }
 
     /**
      * 128 - 数据按照最长接收，一次性
      * */
-
-    private class SocketThread extends Thread {
-        private final String ip;
-        private final int port;
-        public SocketThread(String ip, int port){
-            this.ip = ip;
-            this.port = port;
-        }
+    private class ReceiveThread extends Thread{
         @Override
         public void run() {
-            Log.d(TAG_log,"SocketThread start ");
-            super.run();
-            //connect ...
+            Log.w(TAG,"UDP SocketThread start receiving");
+            uiHandler.sendEmptyMessage(ON_START);
+            long start = System.currentTimeMillis();
+            connected = true;
             try {
-                if (mSocket != null) {
-                    mSocket.close();
-                    mSocket = null;
-                }
-
-                InetAddress ipAddress = InetAddress.getByName(ip);
-                mSocket = new DatagramSocket();
-                mSocket.connect(ipAddress, port); //连接
-
-                //设置timeout
-                //mSocket.setSoTimeout(3000);
-                Log.d(TAG_log,"udp connect = "+isConnect());
-                if(isConnect()){
-                    isStop = false;
-                    uiHandler.sendEmptyMessage(1);
-                }
-                /* 此处这样做没什么意义不大，真正的socket未连接还是靠心跳发送，等待服务端回应比较好，一段时间内未回应，则socket未连接成功 */
-                else{
-                    uiHandler.sendEmptyMessage(-1);
-                    Log.e(TAG_log,"SocketThread connect fail");
-                    return;
-                }
-            } catch (IOException e) {
-                uiHandler.sendEmptyMessage(-1);
-                Log.e(TAG_log,"SocketThread connect io exception = "+e.getMessage());
-                e.printStackTrace();                return;
-            }
-            Log.d(TAG_log,"SocketThread connect over ");
-            //发送一次，否则不发送则收不到，不知道为啥。。。
-            sendByteCmd(new byte[]{0},-1); //send once
-
-            //read ...
-            while (isConnect() && !isStop && !isInterrupted()) {
-                int size;
-                try {
-                    byte[] preBuffer = new byte[4 * 1024];//预存buffer
-                    receivePacket = new DatagramPacket(preBuffer, preBuffer.length);
+                initSocket();
+                //if(mSocket==null) mSocket = new DatagramSocket(port);
+                //if(timeout>0)mSocket.setSoTimeout(timeout);
+                while(connected){
+                    byte[] preBuffer = new byte[1024]; //预存buffer
+                    //接受
+                    DatagramPacket receivePacket = new DatagramPacket(preBuffer, preBuffer.length);
+                    receivePacket.setData(preBuffer);
                     mSocket.receive(receivePacket);
                     if (receivePacket.getData() == null) return;
-                    size = receivePacket.getLength();     //此为获取后的有效长度，一次最多读64k，预存小的话可能分包
-                    Log.d(TAG_log, "pre data size = "+receivePacket.getData().length + ", value data size = "+size);
-                    byte[] dataBuffer = Arrays.copyOf(preBuffer, size);
+                    String ip = receivePacket.getAddress().getHostAddress();
+
+                    int size = receivePacket.getLength();     //此为获取后的有效长度，一次最多读64k，预存小的话可能分包
+                    Log.d(TAG, "pre data size = "+ receivePacket.getData().length + ", value data size = "+size);
+                    //byte[] dataBuffer = Arrays.copyOf(preBuffer, size);
+                    String message = new String(preBuffer,0,size);
+                    int port = receivePacket.getPort();
                     if (size > 0) {
                         Message msg = new Message();
-                        msg.what = 100;
+                        msg.what = ON_DATA;
                         Bundle bundle = new Bundle();
-                        bundle.putByteArray("data",dataBuffer);
-                        bundle.putInt("size",size);
-                        bundle.putInt("requestCode",requestCode);
+                        //bundle.putByteArray("data",dataBuffer);
+                        bundle.putInt("port",port);
+                        bundle.putString("ip",ip);
+                        bundle.putString("message",message);
                         msg.setData(bundle);
                         uiHandler.sendMessage(msg);
                     }
-                    Log.i(TAG_log, "SocketThread read listening");
-                    //Thread.sleep(100);//log eof
                 }
-                catch (IOException e) {
-                    uiHandler.sendEmptyMessage(-1);
-                    Log.e(TAG_log,"SocketThread read io exception = "+e.getMessage());
-                    e.printStackTrace();
-                    return;
-                }
+            } catch (IOException e) {
+                //e.printStackTrace();
+                Log.e(TAG, e.getMessage());
+                uiHandler.sendEmptyMessage(ON_ERROR);
             }
+            if(mSocket != null)mSocket.close();
+
+            long runtime = (System.currentTimeMillis() - start)/1000;
+            Log.w(TAG, "UDP runtime " + runtime + " seconds");
+            uiHandler.sendEmptyMessage(ON_STOP);
         }
     }
 
     //==============================socket connect============================
-    private String ip;
-    private int port;    /**
-     * connect socket in thread
-     * Exception : android.os.NetworkOnMainThreadException
-     * */
-    public void connect(String ip, int port){
-        this.ip = ip;
-        this.port = port;
-        mSocketThread = new SocketThread(ip, port);
-        mSocketThread.start();
-    }
-
     /**
      * socket is connect
      * */
@@ -152,60 +147,62 @@ public class UdpClient {
      * socket disconnect
      * */
     public void disconnect() {
-        isStop = true;
+        connected = false;
         if (mSocket != null) {
             mSocket.close();
             mSocket = null;
         }
-        if (mSocketThread != null) {
-            mSocketThread.interrupt();//not intime destory thread,so need a flag
+        if (mReceiveThread != null) {
+            mReceiveThread.interrupt();//not intime destory thread,so need a flag
         }
     }
 
-    /**
-     * send byte[] cmd
-     * Exception : android.os.NetworkOnMainThreadException
-     * */
-    public void sendByteCmd(final byte[] mBuffer,int requestCode) {
-        this.requestCode = requestCode;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    InetAddress ipAddress = InetAddress.getByName(ip);
-                    sendPacket = new DatagramPacket(mBuffer, mBuffer.length, ipAddress, port);
-                    mSocket.send(sendPacket);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+    public void listen(int port, int timeout) {
+        mPort = port;
+        mTimeout = timeout;
+        mReceiveThread = new ReceiveThread();
+        mReceiveThread.start();
+    }
 
+    public void send(String ip, int port, String message){
+        SendThread sendThread = new SendThread(ip,port,message);
+        sendThread.start();
+    }
+
+    public void broadcast(int port, String message){
+        send(BROAD_IP, port, message);
     }
 
     Handler uiHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            Bundle bundle = msg.getData();
             switch(msg.what){
-                case -1: //connect error
-                    if (null != onDataReceiveListener) {
-                        onDataReceiveListener.onConnectFail();
-                        disconnect();
+                case ON_ERROR:
+                    //disconnect();
+                    //String error = bundle.getString("message");
+                    //Log.w(TAG, error);
+                    break;
+                case ON_START:
+                    if (null != mListener) {
+                        mListener.onStart();
                     }
                     break;
-                case 1: //connect success
-                    if (null != onDataReceiveListener) {
-                        onDataReceiveListener.onConnectSuccess();
+                case ON_DATA: //receive data
+                    //Bundle bundle = msg.getData();
+                    int port = bundle.getInt("port");
+                    //String message =new String(buffer,StandardCharsets.UTF_8);
+                    String ip = bundle.getString("ip");
+                    String message = bundle.getString("message");
+                    Log.v(TAG, "Message from "+ ip + ":" + port);
+                    if (null != mListener) {
+                        mListener.onDataReceive(ip, port, message);
                     }
                     break;
-                case 100: //receive data
-                    Bundle bundle = msg.getData();
-                    byte[] buffer = bundle.getByteArray("data");
-                    int size = bundle.getInt("size");
-                    int mequestCode = bundle.getInt("requestCode");
-                    if (null != onDataReceiveListener) {
-                        onDataReceiveListener.onDataReceive(buffer, size, mequestCode);
+                case ON_STOP:
+                    if (null != mListener) {
+                        mListener.onStop();
                     }
                     break;
             }
@@ -215,14 +212,14 @@ public class UdpClient {
     /**
      * socket response data listener
      * */
-    private OnDataReceiveListener onDataReceiveListener = null;
-    public void setOnDataReceiveListener(OnDataReceiveListener dataReceiveListener) {
-        onDataReceiveListener = dataReceiveListener;
+    private Listener mListener = null;
+    public void setListener(Listener listener) {
+        mListener = listener;
     }
-    private int requestCode = -1;
-    public interface OnDataReceiveListener {
-        void onConnectSuccess();
-        void onConnectFail();
-        void onDataReceive(byte[] buffer, int size, int requestCode);
+
+    public interface Listener {
+        void onStart();
+        void onStop();
+        void onDataReceive(String ip, int port, String message);
     }
 }

@@ -1,4 +1,4 @@
-package com.example.yesiot.dialog;
+package com.example.yesiot.ui.dialog;
 
 import android.content.Context;
 import android.os.Bundle;
