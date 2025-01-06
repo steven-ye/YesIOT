@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
@@ -34,7 +33,6 @@ import com.example.yesiot.AbsFragment;
 import com.example.yesiot.adapter.ButtonAdapter;
 import com.example.yesiot.R;
 import com.example.yesiot.adapter.SpinnerAdapter;
-import com.example.yesiot.dialog.ConfirmDialog;
 import com.example.yesiot.dialog.ListDialog;
 import com.example.yesiot.helper.BlueButtonHelper;
 import com.example.yesiot.helper.BlueDeviceHelper;
@@ -44,7 +42,6 @@ import com.example.yesiot.service.BleGattClient;
 import com.example.yesiot.dialog.LoadingDialog;
 import com.example.yesiot.util.Utils;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -537,6 +534,7 @@ public class DeviceFragment extends AbsFragment {
             viewModel.setLinked(true);
             if(data != null){
                 String message = viewModel.checkboxHex.isChecked()?Utils.bytes2PrintHex(data):new String(data);
+                assert message != null;
                 onMessage(message.trim());
             }
         }
