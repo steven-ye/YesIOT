@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_item_scan"
+        android:icon="@drawable/ic_baseline_bluetooth_searching_24"
+        android:orderInCategory="101"
+        android:title="@string/menu_bluetooth_scan"
+        app:showAsAction="ifRoom" />
+    <item
+    android:id="@+id/menu_item_lock"
+    android:orderInCategory="102"
+    android:icon="@drawable/ic_baseline_lock_24"
+    android:title="@string/action_lock"
+    app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_item_popup"
+        android:icon="@drawable/baseline_radio_button_checked_24"
+        android:orderInCategory="103"
+        android:title="选择服务" />
+    <item
+        android:id="@+id/menu_item_edit"
+        android:orderInCategory="104"
+        android:icon="@drawable/ic_menu_edit_24"
+        android:title="编辑设备"/>
+    <item
+        android:id="@+id/menu_item_debug"
+        android:icon="@drawable/ic_monitor_24"
+        android:orderInCategory="106"
+        android:title="@string/action_debug" />
+
+</menu>

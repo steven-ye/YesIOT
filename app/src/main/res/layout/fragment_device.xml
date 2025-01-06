@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:fadingEdge="vertical"
+    android:scrollbars="vertical"
     tools:context=".ui.device.DeviceFragment">
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fadingEdge="vertical"
-        android:scrollbars="vertical">
 
-        <LinearLayout
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -26,8 +22,8 @@
                 android:layout_width="140dp"
                 android:layout_height="140dp"
                 android:layout_marginTop="10dp"
-                android:background="#D6E1E0"
-                android:padding="15dp"
+                android:contentDescription="Image"
+                android:padding="5dp"
                 app:srcCompat="@drawable/ic_led" />
 
             <com.google.android.material.textfield.TextInputLayout
@@ -74,45 +70,39 @@
                     android:singleLine="true"
                     android:hint="@string/device_theme" />
             </com.google.android.material.textfield.TextInputLayout>
-            <LinearLayout
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_device_ip"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_marginTop="10dp"
+                app:counterMaxLength="50">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layout_device_ip"
-                    android:layout_width="0dp"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/device_ip"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="4"
-                    android:layout_marginTop="10dp"
-                    app:counterMaxLength="50">
+                    android:singleLine="true"
+                    android:hint="@string/device_ip" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/device_ip"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:hint="@string/device_ip" />
-                </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_device_port"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:visibility="gone"
+                app:counterMaxLength="5">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layout_device_port"
-                    android:layout_width="0dp"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/device_port"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginTop="10dp"
-                    app:counterMaxLength="5">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/device_port"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:singleLine="true"
-                        android:hint="@string/device_port"
-                        android:text="80"/>
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
+                    android:inputType="number"
+                    android:singleLine="true"
+                    android:hint="@string/device_port"
+                    android:text="80"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
@@ -152,7 +142,20 @@
                     android:hint="@string/device_payload" />
             </com.google.android.material.textfield.TextInputLayout>
 
-        </LinearLayout>
-    </ScrollView>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp">
 
-</LinearLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/device_weight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/device_weight"
+                    android:inputType="number"
+                    android:singleLine="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+</ScrollView>

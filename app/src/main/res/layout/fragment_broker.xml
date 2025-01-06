@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -40,8 +39,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
                     android:padding="10dp"
-                    android:hint="@string/broker_name_hint"
-                    android:singleLine="true" />
+                    android:autofillHints="@string/broker_name_hint"
+                    android:singleLine="true"
+                    android:inputType="text" />
             </LinearLayout>
 
             <LinearLayout
@@ -78,7 +78,8 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="10dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:baselineAligned="false">
                 <LinearLayout
                     android:id="@+id/row_link_host"
                     android:layout_width="0dp"
@@ -180,7 +181,8 @@
                         android:layout_marginStart="5dp"
                         android:padding="10dp"
                         android:singleLine="true"
-                        android:inputType="text"/>
+                        android:inputType="text"
+                        android:autofillHints="@string/broker_path" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -237,7 +239,8 @@
                         android:layout_marginStart="5dp"
                         android:inputType="textPassword"
                         android:padding="10dp"
-                        android:singleLine="true" />
+                        android:singleLine="true"
+                        android:autofillHints="@string/broker_password" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -261,13 +264,13 @@
                         android:id="@+id/tv_timeout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
                         android:text="@string/broker_timeout" />
 
                     <EditText
                         android:id="@+id/link_timeout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
                         android:autofillHints="true"
                         android:hint="30"
                         android:inputType="number"
@@ -285,13 +288,13 @@
                         android:id="@+id/tv_alive"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
                         android:text="@string/broker_alive" />
 
                     <EditText
                         android:id="@+id/link_alive"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
                         android:padding="10dp"
                         android:autofillHints="true"
                         android:hint="60"
@@ -307,28 +310,51 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:layout_marginTop="10dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:baselineAligned="false">
 
-                <CheckBox
-                    android:id="@+id/checkbox_auto"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:checked="true"
-                    android:text="@string/checkbox_auto" />
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
+                        android:text="@string/checkbox_auto" />
+                    <CheckBox
+                        android:id="@+id/checkbox_auto"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        tools:ignore="NestedWeights" />
+                </LinearLayout>
 
-                <CheckBox
-                    android:id="@+id/checkbox_session"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:checked="true"
-                    android:text="@string/checkbox_session" />
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
+                        android:text="@string/checkbox_session" />
+                    <CheckBox
+                        android:id="@+id/checkbox_session"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        tools:ignore="NestedWeights" />
+                </LinearLayout>
 
             </LinearLayout>
 
             <CheckedTextView
-                android:id="@+id/lastwill"
+                android:id="@+id/ctv_export"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
@@ -341,11 +367,11 @@
                 android:checkMark="?android:attr/listChoiceIndicatorMultiple"
                 android:checked="true"
                 android:filterTouchesWhenObscured="true"
-                android:text="@string/lastwill" />
+                android:text="@string/checkbox_export" />
 
 
             <LinearLayout
-                android:id="@+id/row_lastwill"
+                android:id="@+id/row_ctv_export"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -360,7 +386,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:labelFor="@id/link_topic"
-                        android:text="@string/topic" />
+                        android:text="@string/subscribe" />
 
                     <EditText
                         android:id="@+id/link_topic"
@@ -384,7 +410,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:labelFor="@id/link_message"
-                        android:text="@string/message" />
+                        android:text="@string/lastwill" />
 
                     <EditText
                         android:id="@+id/link_message"

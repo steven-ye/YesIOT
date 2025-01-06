@@ -2,15 +2,12 @@ package com.example.yesiot.ui.device;
 
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckedTextView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import com.example.yesiot.R;
 import com.example.yesiot.object.Constants;
 import com.example.yesiot.object.Device;
-import com.example.yesiot.util.SPUtils;
+import com.example.yesiot.util.SPUtil;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -23,6 +20,7 @@ class DeviceViewModel {
     final TextInputEditText et_sub;
     final TextInputEditText et_topic;
     final TextInputEditText et_payload;
+    final TextInputEditText et_weight;
     final TextInputLayout layout_name;
     final TextInputLayout layout_code;
     final TextInputLayout layout_theme;
@@ -42,13 +40,14 @@ class DeviceViewModel {
         et_sub = root.findViewById(R.id.device_sub);
         et_topic = root.findViewById(R.id.device_topic);
         et_payload = root.findViewById(R.id.device_payload);
+        et_weight = root.findViewById(R.id.device_weight);
         layout_name = root.findViewById(R.id.layout_device_name);
         layout_code = root.findViewById(R.id.layout_device_code);
         layout_theme = root.findViewById(R.id.layout_device_theme);
         layout_ip = root.findViewById(R.id.layout_device_ip);
 
         device = new Device();
-        device.setBrokerId(SPUtils.getInstance().getInt("broker_id"));
+        device.setBrokerId(SPUtil.getBrokerId());
     }
 
     public Device getDevice(){
@@ -64,6 +63,7 @@ class DeviceViewModel {
         et_sub.setText(device.getSub());
         et_topic.setText(device.getTopic());
         et_payload.setText(device.getPayload());
+        et_weight.setText(device.getWeight()+"");
     }
 
     public void setImage(String path){
@@ -78,6 +78,7 @@ class DeviceViewModel {
         device.setSub(et_sub.getText().toString());
         device.setTopic(et_topic.getText().toString());
         device.setPayload(et_payload.getText().toString());
+        device.setWeight(et_weight.getText().toString());
         String strPort = et_port.getText().toString();
         int port = Constants.TCP_SERVER_PORT;
         if(!TextUtils.isEmpty(strPort) && Integer.parseInt(strPort)>0){

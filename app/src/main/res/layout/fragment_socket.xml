@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_grey_light"
     android:orientation="vertical"
     tools:context=".ui.socket.SocketFragment">
 
@@ -62,7 +61,7 @@
             android:id="@+id/tcp_scrollview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@android:color/white"
+            android:background="@color/background_light"
             app:layout_constraintBottom_toTopOf="@id/tcp_send_option"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -70,8 +69,7 @@
                 android:id="@+id/tcp_logger"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:textColor="@color/black" />
+                android:padding="5dp" />
         </ScrollView>
 
         <RelativeLayout

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <LinearLayout
@@ -58,31 +59,16 @@
                     android:layout_width="60dp"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
-                    android:text="名称"/>
-                <EditText
-                    android:id="@+id/panel_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:maxLength="20"
-                    android:singleLine="true"
-                    android:layout_weight="1"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="60dp"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical"
                     android:text="标题"/>
                 <EditText
                     android:id="@+id/panel_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:inputType="text"
                     android:singleLine="true"
                     android:maxLength="20"
+                    android:autofillHints="@string/panel_title"
                     android:hint="@string/panel_title"/>
                 <LinearLayout
                     android:layout_width="0dp"
@@ -130,14 +116,16 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
                         android:text="@string/text_size"/>
+
                     <EditText
                         android:id="@+id/panel_unit_size"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:singleLine="true"
+                        android:inputType="number"
                         android:maxLength="5"
-                        android:inputType="number"/>
+                        android:singleLine="true"
+                        tools:ignore="SpeakableTextPresentCheck" />
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout
@@ -159,7 +147,8 @@
                     android:hint="@string/panel_width"
                     android:inputType="number"
                     android:maxLength="4"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:textColorHint="#546E7A" />
                 <EditText
                     android:id="@+id/panel_height"
                     android:layout_width="0dp"
@@ -181,6 +170,23 @@
                 android:text="高度或宽度不能超屏幕宽度"/>
 
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="名称"/>
+                <EditText
+                    android:id="@+id/panel_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:maxLength="20"
+                    android:singleLine="true"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+            <LinearLayout
                 android:id="@+id/row_payload"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -195,6 +201,25 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:maxLines="5"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/row_max_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="最大值"/>
+
+                <EditText
+                    android:id="@+id/panel_max_value"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
                     android:layout_weight="1"/>
             </LinearLayout>
             <LinearLayout
@@ -236,26 +261,5 @@
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
         </LinearLayout>
-
-        <RelativeLayout
-            android:id="@+id/row_panel_icon"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:gravity="center_vertical"
-                android:text="图标"/>
-
-            <ImageView
-                android:id="@+id/panel_preview"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_alignParentEnd="true"
-                android:src="@drawable/ic_baseline_power_settings_new_24" />
-        </RelativeLayout>
-
     </LinearLayout>
 </ScrollView>

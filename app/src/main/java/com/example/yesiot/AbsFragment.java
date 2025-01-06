@@ -2,13 +2,22 @@ package com.example.yesiot;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Size;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
+import androidx.navigation.Navigation;
 
-import com.example.yesiot.ui.dialog.ConfirmDialog;
+import com.example.yesiot.dialog.ConfirmDialog;
 import com.example.yesiot.util.Utils;
 
 public abstract class AbsFragment extends Fragment {
@@ -16,19 +25,79 @@ public abstract class AbsFragment extends Fragment {
     protected Context mContext;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        //在fragment中使用oncreateOptionsMenu时需要在onCrateView中添加此方法，否则不会调用
-        setHasOptionsMenu(true);
+    public void onCreate(@Nullable Bundle savedInstanceState)
+    {
+        //在fragment中使用onCreateOptionsMenu时需要在onCrateView中添加此方法，否则不会调用
+        //setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
         mContext = getContext();
     }
 
-    public MainActivity getMainActivity(){
-        return (MainActivity)getActivity();
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setOptionsMenu();
     }
 
+    private void setOptionsMenu()
+    {
+        MenuHost menuHost = requireActivity();
+        menuHost.addMenuProvider(new MenuProvider() {
+            @Override
+            public void onPrepareMenu(@NonNull Menu menu) {
+                // Handle for example visibility of menu items
+                //menu.findItem(R.id.action_search).isVisible = false;
+                onOptionsMenuPrepared(menu);
+            }
+
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                //menuInflater.inflate(menuId, menu);
+                onOptionsMenuCreated(menu, menuInflater);
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                return onOptionsMenuSelected(menuItem);
+                //return false;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+    }
+
+    protected void onOptionsMenuPrepared(@NonNull Menu menu)
+    {
+        //menu.findItem(R.id.action_search).isVisible = false;
+    }
+    protected void onOptionsMenuCreated(@NonNull Menu menu, @NonNull MenuInflater menuInflater)
+    {
+        //menuInflater.inflate(R.menu.home, menu);
+    }
+
+    protected boolean onOptionsMenuSelected(@NonNull MenuItem menuItem)
+    {
+        return false;
+    }
+
+    protected void navigate(int pageResId, Bundle args)
+    {
+        Navigation.findNavController(requireView()).navigate(pageResId, args);
+    }
+
+    protected void navigateUp()
+    {
+        Navigation.findNavController(requireView()).navigateUp();
+    }
+    public MainActivity getMainActivity(){
+        return (MainActivity)requireActivity();
+    }
+
+    public String getTitle() {
+        return getMainActivity().getTitle().toString();
+    }
     public void setTitle(String title) {
-        getMainActivity().getSupportActionBar().setTitle(title);
+        ActionBar actionBar = getMainActivity().getSupportActionBar();
+        assert actionBar != null;
+        actionBar.setTitle(title);
     }
 
     public void confirm(String message, ConfirmDialog.OnConfirmListener okayListener){
@@ -36,120 +105,14 @@ public abstract class AbsFragment extends Fragment {
     }
 
     public void alert(String message){
-        Utils.alert(getContext(), message);
+        Utils.alert(mContext, message);
     }
 
-/*
-    private void searchDevice() {
-        //showLoading("开始扫描 ...");
-        LoadingDialog loadingDialog = new LoadingDialog(getContext(), "开始扫描 ...");
-        loadingDialog.show();
-        IPScan ipScan = IPScan.getInstance();
-        ipScan.setOnScanListener(new IPScan.OnScanListener() {
-            @Override
-            public void onPingSuccess(String ip) {
-                Log.v(TAG,"Scanned IP >> "+ip);
-                TcpClient client = new TcpClient();
-                //client.setOnDataReceiveListener(onDataReceiveListener);
-                client.setCallback(new TcpClient.TcpCallback() {
-                    @Override
-                    public void onConnectSuccess(String ip, int port) {
-                        Log.v(TAG,"Socket Connected >> "+ip+":"+port);
-                        client.send("setting");
-                    }
-
-                    @Override
-                    public void onConnectFail(String ip, int port) {
-                        Log.v(TAG,"Socket Connect Failed >> "+ip+":"+port);
-                    }
-
-                    @Override
-                    public void onDataReceived(String message, int requestCode) {
-                        client.disconnect();
-                        message = message.trim();
-                        Log.v(TAG,"DataReceived from "+ip+": " + message);
-                        try{
-                            DeviceBean deviceBean = new Gson().fromJson(JsonParser.parseString(message), DeviceBean.class);
-                            //Log.v(TAG, "Found Device: "+deviceBean.getTheme());
-                            //Utils.showToast("Found Device <theme> "+deviceBean.getTheme());
-                            //deviceBean.setIp(ip);
-                            if(handleFound(deviceBean)) {
-                                getDeviceList();
-                            }
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                client.connect(ip, Constants.SCANNING_DEVICE_PORT, 500);
-            }
-
-            @Override
-            public void onScanning(int progress) {
-                Log.v(TAG,"Finished "+progress+"%");
-            }
-
-            @Override
-            public void onScanningDone(List<String> ipList) {
-                Log.v(TAG,"Scanning Done>>"+new Gson().toJson(ipList));
-                loadingDialog.dismiss();
-            }
-        });
-        ipScan.startScanning(getContext());
+    public void showToast(String message) {
+        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
     }
 
-    private boolean handleFound(DeviceBean deviceBean){
-        Size size = Utils.getScreenSize(getActivity());
-        int panelSize = Utils.dp2px(getContext(), Constants.DEFAULT_PANEL_SIZE);
-        int margin = (size.getWidth() - panelSize * 2) / 3;
-
-        Device device = DeviceHelper.get("code=? and broker_id=?",new String[]{deviceBean.getCode(),brokerId+""});
-        //Log.v(TAG, "Device code: "+device.code);
-        device.setCode(deviceBean.getCode());
-        device.setName(deviceBean.getName());
-        device.setTopic(deviceBean.getTopic());
-        device.setSub(deviceBean.getTopic());
-        device.setIp(deviceBean.getIp());
-        if (device.getId() == 0) {
-            Utils.showToast("发现新设备 "+ deviceBean.getName());
-            device.setBrokerId(brokerId);
-            if (DeviceHelper.save(device)){
-                Utils.showToast("设备 "+ device.getName() +" 添加成功");
-                List<String> pinList = deviceBean.getPins();
-                for(String pin: pinList){
-                    Panel panel = new Panel();
-                    panel.deviceId = device.getId();
-                    int position = pinList.indexOf(pin);
-                    int left = position % 2 == 0 ? margin : 2 * margin + panelSize;
-                    int top = (position/2) * (panelSize + 50) + 50;
-                    panel.pos = left +"#" + top;
-                    panel.title = "普通开关";
-                    panel.unit = pin;
-                    panel.width = panelSize;
-                    panel.height = panelSize;
-                    if(pin.startsWith("gpio,")){
-                        panel.type = 2;
-                        panel.on = pin+",1";
-                        panel.off = pin+",0";
-                    }else if(pin.startsWith("pwm,")){
-                        panel.title = "普通按纽";
-                        panel.type = 0;
-                        panel.payload = pin+",1";
-                    }else{
-                        panel.title = pin;
-                        panel.unit = "";
-                        panel.type = 5;
-                    }
-                    PanelHelper.save(panel);
-                }
-                //updateList();
-                return true;
-            }else{
-                Utils.showToast("设备 "+ device.getName() +" 添加失败");
-            }
-        }
-        return false;
+    public void showToast(String message, int type) {
+        Toast.makeText(mContext, message, type).show();
     }
-
- */
 }

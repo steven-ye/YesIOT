@@ -1,6 +1,7 @@
 package com.example.yesiot;
 
 import android.content.Context;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -9,8 +10,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import androidx.annotation.Nullable;
 
 import com.example.yesiot.object.Panel;
 import com.example.yesiot.util.Utils;
@@ -25,6 +24,7 @@ public class PanelLayout extends LinearLayout {
     public static int[] DATA_OPTIONS = {
             R.layout.option_panel_data_arc,
             R.layout.option_panel_data_ring,
+            R.layout.option_panel_text,
     };
 
     public static int[] BUTTON_TYPES = {
@@ -36,6 +36,7 @@ public class PanelLayout extends LinearLayout {
     public static int[] DATA_TYPES = {
             R.layout.layout_panel_data_arc,
             R.layout.layout_panel_data_ring,
+            R.layout.layout_panel_text,
     };
 
     final int TYPE_TEXT = 0;
@@ -64,6 +65,10 @@ public class PanelLayout extends LinearLayout {
         return mView;
     }
 
+    public String getName() {
+        return mPanel.name;
+    }
+
     public Panel getPanel() {
         return mPanel;
     }
@@ -71,7 +76,7 @@ public class PanelLayout extends LinearLayout {
         mPanel = panel;
         int width = panel.width==0?LayoutParams.WRAP_CONTENT:panel.width;
         int height = panel.height==0?LayoutParams.WRAP_CONTENT:panel.height;
-        if(panel.design>=BUTTON_TYPES.length)panel.design=BUTTON_TYPES.length-1;
+        if(panel.design >= BUTTON_TYPES.length)panel.design=BUTTON_TYPES.length-1;
         int res;
         if(panel.type==2){
             if(panel.design>=DATA_TYPES.length)panel.design=DATA_TYPES.length-1;
@@ -91,6 +96,18 @@ public class PanelLayout extends LinearLayout {
         addView(mView,layoutParams);
 
         if(panel.type == 2){
+            if(panel.design == 2){
+                setTitle(panel.title);
+                if(TextUtils.isEmpty(panel.unit)){
+                    setText("无内容");
+                }else{
+                    setText(panel.unit);
+                }
+
+                setTextSize(viewHolder.titleView, panel.title_size);
+                setTextSize(viewHolder.textView, panel.unit_size);
+                return;
+            }
             viewHolder.dataView.setText(panel.title);
             if(!TextUtils.isEmpty(panel.unit)){
                 viewHolder.dataView.setUnit(panel.unit);
@@ -143,43 +160,70 @@ public class PanelLayout extends LinearLayout {
             viewHolder.textView.setVisibility(VISIBLE);
         }
     }
-    public void setImage(int layouId){
-        viewHolder.imageView.setImageResource(layouId);
+
+    public void setMax(float maxVal)
+    {
+        if(viewHolder.dataView == null) return;
+        viewHolder.dataView.setMaxValue(maxVal);
+    }
+
+    public void setImage(int layoutId){
+        viewHolder.imageView.setImageResource(layoutId);
     }
     public String getValue(){return mValue;}
     public void setValue(String value){
         mValue = value;
+        int color;
         if(mPanel.type==2){
+            if(mPanel.design == 2){
+                if(TextUtils.isEmpty(value)) value = "无内容";
+                setText(value);
+                return;
+            }
             if(Utils.isDoubleOrFloat(value)) {
                 float progress = Float.parseFloat(value);
-                if(viewHolder.dataView !=null){
+                if(viewHolder.dataView != null){
                     viewHolder.dataView.setProgress(progress);
                 }
                 Log.w("PanelLayout","setValue: "+mPanel.name +" -> "+ value);
             }else{
                 Log.e("PanelLayout","数据格式错误："+value);
             }
-        }else{
-            int color;
+        }else if(mPanel.type==1 || mPanel.type==0){
+            int resId;
             if(value.equals(mPanel.on)){
-                color = mContext.getColor(R.color.panel_on);
+                resId = R.color.panel_on;
             }else if(value.equals(mPanel.off)){
-                color = mContext.getColor(R.color.panel_off);
+                resId = R.color.panel_off;
             }else{
                 return;
             }
-            if(viewHolder.imageView.getVisibility()==VISIBLE){
-                if(mPanel.design == 4){
-                    int imgRes = value.equals(mPanel.on)?R.drawable.ic_baseline_toggle_on_24:R.drawable.ic_baseline_toggle_off_24;
-                    viewHolder.imageView.setImageResource(imgRes);
-                }
-                viewHolder.imageView.setColorFilter(color);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                color = mContext.getColor(resId);
             }else{
-                viewHolder.titleView.setTextColor(color);
+                color = getResources().getColor(resId);
             }
-        }
+            setColor(color, value);
+        }/*
+        else if(mPanel.type==0){
+            int colorRes = value.equals(mPanel.payload) ? R.color.panel_on : R.color.panel_off;
+            color = mContext.getColor(colorRes);
+            setColor(color, value);
+        }*/
     }
 
+    public void setColor(int color, String value){
+        if(viewHolder.imageView.getVisibility()==VISIBLE){
+            if(mPanel.design == 4){
+                int imgRes = value.equals(mPanel.on)?R.drawable.ic_baseline_toggle_on_24:R.drawable.ic_baseline_toggle_off_24;
+                viewHolder.imageView.setImageResource(imgRes);
+            }
+            viewHolder.imageView.setColorFilter(color);
+        }else{
+            viewHolder.titleView.setTextColor(color);
+        }
+    }
     static class ViewHolder{
         public ImageView imageView;
         public TextView titleView;

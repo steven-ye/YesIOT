@@ -21,10 +21,11 @@ class PanelViewModel {
     final EditText et_cmd_off;
     final EditText et_width;
     final EditText et_height;
+    final EditText et_max_value;
     final RadioGroup radioGroup;
     final View row_payload;
     final View row_on_off;
-    final View row_panel_icon;
+    final View row_max_value;
     final TextView tv_error;
 
     public PanelViewModel(View root){
@@ -39,10 +40,27 @@ class PanelViewModel {
         et_cmd_off = root.findViewById(R.id.panel_cmd_off);
         et_width = root.findViewById(R.id.panel_width);
         et_height = root.findViewById(R.id.panel_height);
+        et_max_value = root.findViewById(R.id.panel_max_value);
         radioGroup = root.findViewById(R.id.panel_radioGroup);
+        row_max_value = root.findViewById(R.id.row_max_value);
         row_payload = root.findViewById(R.id.row_payload);
         row_on_off = root.findViewById(R.id.row_cmd_on_off);
-        row_panel_icon = root.findViewById(R.id.row_panel_icon);
         tv_error = root.findViewById(R.id.textinput_error);
+    }
+
+    public void setVisible(int type){
+        switch(type){
+            case 0:
+                row_payload.setVisibility(View.VISIBLE);
+                row_on_off.setVisibility(View.GONE);
+                break;
+            case 1:
+                row_payload.setVisibility(View.GONE);
+                row_on_off.setVisibility(View.VISIBLE);
+                break;
+            default:
+                row_payload.setVisibility(View.GONE);
+                row_on_off.setVisibility(View.GONE);
+        }
     }
 }

@@ -15,13 +15,15 @@ public class ControlViewModel extends ViewModel {
     final MutableLiveData<Boolean> mLocked = new MutableLiveData<>();
     final MutableLiveData<List<Panel>> mList = new MutableLiveData<>();
     final MutableLiveData<Integer> mOption = new MutableLiveData<>();
-    final MutableLiveData<String>  mStatus= new MutableLiveData<>();
+    final MutableLiveData<String>  mStatus = new MutableLiveData<>();
+    final MutableLiveData<Boolean>  mOnline = new MutableLiveData<>();
 
     public ControlViewModel() {
         mLocked.setValue(true);
         mList.setValue(new ArrayList<>());
         mOption.setValue(0);
         mStatus.setValue("");
+        mOnline.setValue(false);
     }
 
     public LiveData<Boolean> getLocked() {
@@ -50,5 +52,14 @@ public class ControlViewModel extends ViewModel {
     }
     public void setStatus(String status) {
         mStatus.setValue(status);
+    }
+    public void setOnline(boolean online) {
+        mOnline.postValue(online);
+    }
+    public LiveData<Boolean> getOnline() {
+        return mOnline;
+    }
+    public boolean isOnline() {
+        return mOnline.getValue();
     }
 }

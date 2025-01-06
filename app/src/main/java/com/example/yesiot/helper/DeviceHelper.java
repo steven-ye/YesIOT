@@ -1,5 +1,6 @@
 package com.example.yesiot.helper;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,7 +14,7 @@ import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeviceHelper {
+public class DeviceHelper extends AbstractHelper {
     DatabaseHelper dbHelper;
     final static String table = "devices";
 
@@ -22,32 +23,31 @@ public class DeviceHelper {
     }
 
     public static Device get(int id) {
-        SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance();
         Device device = new Device();
-        Cursor cursor = db.rawQuery("SELECT * FROM "+table+" WHERE id=?", new String[]{id+""});
+        Cursor cursor = dbHelper.select(table, null, "id=?", new String[]{id+""});
         if(cursor.moveToFirst()){
-            device = getDevice(cursor);
+            device = getItem(cursor);
         }
         cursor.close();
-        db.close();
+        dbHelper.close();
         return device;
     }
 
     public static Device get(String selection, String[] args){
-        SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance();
         Device device = new Device();
-        Cursor cursor = db.query(table, null, selection, args, null, null, null);
+        Cursor cursor = dbHelper.select(table, null, selection, args);
         if(cursor.moveToFirst()){
-            device = getDevice(cursor);
+            device = getItem(cursor);
         }
         cursor.close();
-        db.close();
+        dbHelper.close();
         return device;
     }
 
     public static boolean save(Device device) {
         DatabaseHelper dbHelper = DatabaseHelper.getInstance();
-        int num;
         ContentValues cv = new ContentValues();
         cv.put("name",device.getName());
         cv.put("code",device.getCode());
@@ -59,8 +59,10 @@ public class DeviceHelper {
         cv.put("sub",device.getSub());
         cv.put("topic",device.getTopic());
         cv.put("payload",device.getPayload());
+        cv.put("weight",device.getWeight());
         cv.put("broker_id",device.getBrokerId());
         int id = device.getId();
+        int num;
         if(id>0){
             num = dbHelper.update(table,cv, id);
         }else{
@@ -76,7 +78,7 @@ public class DeviceHelper {
         return num>0;
     }
 
-    public static boolean find(Device device){
+    public static boolean has(Device device){
         Device dev = get("code=? and ip=?", new String[]{device.getCode(),device.getIp()});
         return dev.getId() > 0;
     }
@@ -84,67 +86,79 @@ public class DeviceHelper {
     public static List<Device> getList(int brokerId){
         List<Device> list = new ArrayList<>();
         if(brokerId<1)return list;
-        SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance();
         //Cursor cursor = db.rawQuery("SELECT * FROM "+table+" WHERE user_id=?",new String[]{userId+""});
-        Cursor cursor = db.rawQuery("SELECT a.*,b.name AS broker FROM "+table + " a, brokers b WHERE a.broker_id=b.id AND broker_id=?",new String[]{brokerId+""});
+        Cursor cursor = dbHelper.query("SELECT a.*,b.name AS broker FROM "+table + " a, brokers b WHERE a.broker_id=b.id AND a.broker_id=? ORDER BY a.weight asc, a.id asc",new String[]{brokerId+""});
         while(cursor.moveToNext()){
-            list.add(getDevice(cursor));
+            list.add(getItem(cursor));
         }
         cursor.close();
-        db.close();
+        dbHelper.close();
         return list;
     }
 
     public static List<Device> getList(){
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance();
         List<Device> list = new ArrayList<>();
-        SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT a.*,b.name AS broker FROM "+table + " a, brokers b WHERE a.broker_id=b.id",null);
+        Cursor cursor = dbHelper.query("SELECT a.*,b.name AS broker FROM "+table + " a, brokers b WHERE a.broker_id=b.id ORDER BY weight desc, id asc",null);
         while(cursor.moveToNext()){
-            list.add(getDevice(cursor));
+            list.add(getItem(cursor));
         }
         cursor.close();
-        db.close();
+        dbHelper.close();
         return list;
     }
 
-    private static Device getDevice(Cursor cursor){
-        Device device = new Device();
-        device.setId(getIntColumn(cursor,"id"));
-        device.setBrokerId(getIntColumn(cursor,"broker_id"));
-        device.setName(getColumn(cursor,"name"));
-        device.setCode(getColumn(cursor,"code"));
-        device.setTheme(getColumn(cursor,"theme"));
-        device.setImage(getColumn(cursor,"image"));
-        device.setIp(getColumn(cursor,"ip"));
-        device.setPort(getIntColumn(cursor,"port"));
-        device.setSub(getColumn(cursor,"sub"));
-        device.setTopic(getColumn(cursor,"topic"));
-        device.setPayload(getColumn(cursor,"payload"));
-        JsonElement jsonElement = JsonParser.parseString(getColumn(cursor,"pins"));
-        device.setPins(new Gson().fromJson(jsonElement, new TypeToken<List<String>>() {}.getType()));
-
-        device.setBroker(getColumn(cursor,"broker"));
-
-        return device;
-    }
-
-    public static boolean hasDevice(int brokerId){
+    public static boolean has(int brokerId, String code){
         SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
-        //Cursor cursor = db.rawQuery("SELECT * FROM "+table+" WHERE user_id=?",new String[]{userId+""});
-        Cursor cursor = db.rawQuery("SELECT * FROM "+table+" WHERE broker_id=?",new String[]{brokerId+""});
+        Cursor cursor = db.rawQuery("SELECT * FROM "+table+" WHERE broker_id=? AND code=?",new String[]{brokerId+"", code});
         boolean has = cursor.moveToNext();
         cursor.close();
         db.close();
         return has;
     }
 
-    private static String getColumn(Cursor cursor, String name){
-        if(cursor.getColumnIndex(name)>0){
-            return cursor.getString(cursor.getColumnIndex(name));
-        }
-        return "";
+    private static Device getItem(Cursor cursor){
+        Device device = new Device();
+        device.setId(getColumnInt(cursor,"id"));
+        device.setBrokerId(getColumnInt(cursor,"broker_id"));
+        device.setName(getColumn(cursor,"name"));
+        device.setCode(getColumn(cursor,"code"));
+        device.setTheme(getColumn(cursor,"theme"));
+        device.setImage(getColumn(cursor,"image"));
+        device.setIp(getColumn(cursor,"ip"));
+        device.setPort(getColumnInt(cursor,"port"));
+        device.setSub(getColumn(cursor,"sub"));
+        device.setTopic(getColumn(cursor,"topic"));
+        device.setPayload(getColumn(cursor,"payload"));
+        device.setWeight(getColumnInt(cursor,"weight"));
+        device.setBrokerId(getColumnInt(cursor,"broker_id"));
+        JsonElement jsonElement = JsonParser.parseString(getColumn(cursor,"pins"));
+        device.setPins(new Gson().fromJson(jsonElement, new TypeToken<List<String>>() {}.getType()));
+
+        return device;
     }
-    private static int getIntColumn(Cursor cursor, String name){
-        return cursor.getInt(cursor.getColumnIndex(name));
+
+    public static boolean hasDevice(int brokerId){
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance();
+        //Cursor cursor = db.rawQuery("SELECT * FROM "+table+" WHERE user_id=?",new String[]{userId+""});
+        Cursor cursor = dbHelper.select(table, null, "broker_id=?", new String[]{brokerId+""});
+        boolean has = cursor.moveToNext();
+        cursor.close();
+        dbHelper.close();
+        return has;
+    }
+
+
+    protected static int getMaxID(){
+        int id = 0;
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance();
+        Cursor cursor = dbHelper.query("SELECT MAX(id) as id FROM " + table, null);
+        if(cursor.moveToNext()){
+            id = cursor.getInt(0);
+        }
+        cursor.close();
+        dbHelper.close();
+        return id;
     }
 }

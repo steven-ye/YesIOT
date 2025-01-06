@@ -30,9 +30,10 @@
             <ListView
                 android:id="@+id/devListView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:cacheColorHint="@android:color/transparent"
-                android:divider="#EDEDEF"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:background="@color/background_light"
+                android:divider="@color/border_grey_light"
                 android:dividerHeight="1dp" />
 
             <!-- Here is the view to show if the list is emtpy -->

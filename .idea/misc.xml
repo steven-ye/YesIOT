@@ -1,6 +1,112 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/ic_add_circle.xml" value="0.1325" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/ic_baseline_add_24.xml" value="0.1325" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/ic_baseline_arrow_forward_ios_24.xml" value="0.1325" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/ic_baseline_cloud_off_24.xml" value="0.1325" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/ic_baseline_lock_open_24.xml" value="0.1305" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/ic_connecting.xml" value="0.1305" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/ic_option.xml" value="0.132" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/selector.xml" value="0.1305" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/selector_blue.xml" value="0.1575" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/selector_button_blue.xml" value="0.1575" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/selector_button_disable.xml" value="0.1305" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/selector_button_grey.xml" value="0.1575" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/shape_corner_radius.xml" value="0.1305" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/shape_corner_radius_blue.xml" value="0.1575" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/shape_corner_radius_blue_light.xml" value="0.1575" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/shape_corner_radius_grey.xml" value="0.1575" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable-v24/shape_corner_radius_grey_light.xml" value="0.1305" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable/bluetooth.xml" value="0.132" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable/ic_alarm.xml" value="0.1325" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable/ic_baseline_add_circle_outline_24.xml" value="0.132" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable/ic_baseline_bluetooth_24.xml" value="0.1305" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable/ic_baseline_bluetooth_audio_24.xml" value="0.1305" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable/ic_baseline_bluetooth_disabled_24.xml" value="0.1305" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable/ic_baseline_bluetooth_searching_24.xml" value="0.1305" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable/ic_baseline_cast_connected_24.xml" value="0.1305" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable/ic_menu_camera.xml" value="0.1305" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/drawable/ic_pencil_square.xml" value="0.1305" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/activity_main.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/app_bar_main.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/content_main.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/dialog_device.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/dialog_listview.xml" value="0.121875" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/fragment_about.xml" value="0.121875" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/fragment_bluetooth.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/fragment_bluetooth_device.xml" value="0.19429347826086957" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/fragment_bluetooth_list.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/fragment_bluetooths.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/fragment_broker.xml" value="0.121875" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/fragment_brokers.xml" value="0.121875" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/fragment_control.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/fragment_device.xml" value="0.1" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/fragment_devices.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/fragment_home.xml" value="0.121875" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/fragment_panel.xml" value="0.15" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/fragment_qrcode.xml" value="0.12083333333333333" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/item_device.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/item_gatt_dropdown.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/item_gatt_spinner.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/item_listview_bluetooth.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/item_listview_broker.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/item_listview_device.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/item_scan_result.xml" value="0.121875" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/layout/layout_panel_text.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/menu/activity_main_drawer.xml" value="0.12135416666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/menu/bluetooth.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/menu/device.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/menu/devices.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/menu/home.xml" value="0.11979166666666667" />
+        <entry key="..\:/Android/YesIOT/app/src/main/res/menu/qrcode.xml" value="0.11979166666666667" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/drawable-v24/item_selector.xml" value="0.1355" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/drawable-v24/selector.xml" value="0.1355" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/drawable-v24/shape_corner_online.xml" value="0.1355" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/drawable-v24/shape_corner_radius.xml" value="0.1355" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/drawable-v24/shape_line.xml" value="0.1355" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/drawable-v24/shape_line_blue.xml" value="0.1355" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/drawable-v24/shape_line_gray.xml" value="0.1355" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/drawable-v24/shape_online_focus.xml" value="0.1355" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/activity_esptouch.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/activity_main.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/app_bar_main.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/content_main.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/dialog_broker.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/dialog_confirm.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/dialog_device.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/dialog_listview.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/dialog_listview_item.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/dialog_panel.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/fragment_about.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/fragment_broker.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/fragment_brokers.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/fragment_control.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/fragment_device.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/fragment_devices.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/fragment_esptouch.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/fragment_home.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/fragment_panel.xml" value="0.12786885245901639" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/fragment_qrcode.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/fragment_socket.xml" value="0.10326086956521739" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/item_device.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/item_gridview_device.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/item_listview_broker.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/item_recycler_type.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/item_scan_result.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/layout_panel_horizontal.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/layout_panel_selector.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/layout_panel_text.xml" value="0.25" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/layout/layout_panel_vertical.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/menu/activity_main_drawer.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/menu/control.xml" value="0.125" />
+        <entry key="..\:/android/YesIOT/app/src/main/res/menu/qrcode.xml" value="0.125" />
+      </map>
+    </option>
+  </component>
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="jbr-17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

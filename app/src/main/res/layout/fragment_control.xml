@@ -42,10 +42,9 @@
             android:layout_alignBaseline="@id/tab_layout"
             android:text="设备在线"/>
     </RelativeLayout>
-
     <com.example.yesiot.DragLayout
         android:id="@+id/dragLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
+        android:layout_height="match_parent"
+        android:layout_gravity="center"/>
 </LinearLayout>

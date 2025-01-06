@@ -11,18 +11,28 @@
         android:label="@string/nav_home"
         tools:layout="@layout/fragment_home" />
     <fragment
+        android:id="@+id/nav_qrcode"
+        android:name="com.example.yesiot.ui.qrcode.QrcodeFragment"
+        android:label="@string/nav_qrcode"
+        tools:layout="@layout/fragment_qrcode"/>
+    <fragment
         android:id="@+id/nav_devices"
-        android:name="com.example.yesiot.ui.devices.DevicesFragment"
+        android:name="com.example.yesiot.ui.device.ListFragment"
         android:label="@string/nav_devices"
         tools:layout="@layout/fragment_devices" />
     <fragment
         android:id="@+id/nav_brokers"
-        android:name="com.example.yesiot.ui.broker.BrokersFragment"
+        android:name="com.example.yesiot.ui.broker.ListFragment"
         android:label="@string/nav_brokers"
         tools:layout="@layout/fragment_brokers"/>
     <fragment
+        android:id="@+id/nav_bluetooth"
+        android:name="com.example.yesiot.ui.bluetooth.ListFragment"
+        android:label="@string/nav_bluetooth"
+        tools:layout="@layout/fragment_bluetooth"/>
+    <fragment
         android:id="@+id/nav_esptouch"
-        android:name="com.example.esptouch.v1.EspTouchFragment"
+        android:name="com.example.yesiot.ui.esptouch.EspTouchFragment"
         android:label="@string/nav_esptouch"
         tools:layout="@layout/fragment_esptouch" />
     <fragment
@@ -55,5 +65,20 @@
         android:id="@+id/nav_panel"
         android:name="com.example.yesiot.ui.panel.PanelFragment"
         android:label="@string/nav_panel"
-        tools:layout="@layout/fragment_control"/>
+        tools:layout="@layout/fragment_panel"/>
+    <fragment
+        android:id="@+id/nav_bluetooth_device"
+        android:name="com.example.yesiot.ui.bluetooth.DeviceFragment"
+        android:label="{name}"
+        tools:layout="@layout/fragment_bluetooth_device"/>
+    <fragment
+        android:id="@+id/nav_bluetooth_register"
+        android:name="com.example.yesiot.ui.bluetooth.RegisterFragment"
+        android:label="{name}"
+        tools:layout="@layout/fragment_bluetooth_register"/>
+    <fragment
+        android:id="@+id/nav_bluetooth_button"
+        android:name="com.example.yesiot.ui.bluetooth.ButtonFragment"
+        android:label="{title}"
+        tools:layout="@layout/fragment_bluetooth_button"/>
 </navigation>

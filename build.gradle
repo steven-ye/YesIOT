@@ -2,23 +2,48 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        maven {
+            url 'https://maven.aliyun.com/repository/public/'
+        }
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:4.1.1"
+        classpath 'com.android.tools.build:gradle:8.5.1'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
+ext {
+    buildToolsVersion = '34.0.0'
+}
+
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        maven {
+            url 'https://maven.aliyun.com/repository/public/'
+        }
     }
 }
-
+/*
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+*/
+
+rootProject.layout.buildDirectory = file('../build')
+subprojects {
+    def directory = "${rootProject.layout.buildDirectory.get().asFile}/${project.name}"
+    logger.quiet("directory is: $directory") // debugging
+    project.layout.buildDirectory = file(directory)
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.layout.buildDirectory
 }

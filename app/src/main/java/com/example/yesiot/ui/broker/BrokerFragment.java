@@ -12,17 +12,14 @@ import android.view.ViewGroup;
 import android.widget.CheckedTextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.yesiot.AbsFragment;
-import com.example.yesiot.MainActivity;
 import com.example.yesiot.R;
-import com.example.yesiot.ui.dialog.ConfirmDialog;
+import com.example.yesiot.dialog.ConfirmDialog;
 import com.example.yesiot.helper.BrokerHelper;
 import com.example.yesiot.helper.DeviceHelper;
-import com.example.yesiot.util.SPUtils;
+import com.example.yesiot.util.SPUtil;
 import com.example.yesiot.util.Utils;
 
 import java.util.HashMap;
@@ -39,22 +36,22 @@ public class BrokerFragment extends AbsFragment {
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_broker, container, false);
 
-        String[] protocols = getActivity().getResources().getStringArray(R.array.protocol_values);
+        String[] protocols = requireActivity().getResources().getStringArray(R.array.protocol_values);
 
         viewModel = new BrokerViewModel(root);
         viewModel.setProtocols(protocols);
 
-        viewModel.ctv_lastwill.setOnClickListener(v->{
+        viewModel.ctv_export.setOnClickListener(v->{
             CheckedTextView view = (CheckedTextView)v;
             if(view.isChecked()){
-                viewModel.row_lastwill.setVisibility(View.GONE);
+                viewModel.row_ctv_export.setVisibility(View.GONE);
                 view.setChecked(false);
             }else{
-                viewModel.row_lastwill.setVisibility(View.VISIBLE);
+                viewModel.row_ctv_export.setVisibility(View.VISIBLE);
                 view.setChecked(true);
             }
         });
-        viewModel.ctv_lastwill.callOnClick();
+        viewModel.ctv_export.callOnClick();
 
         Bundle args = getArguments();
         id = args == null ? 0 : args.getInt("id");
@@ -65,49 +62,47 @@ public class BrokerFragment extends AbsFragment {
             Log.w(TAG, "Broker name is "+map.get("name"));
         }else{
             setTitle("添加连接信息");
-            map.put("name","bemfa.com");
-            map.put("host","bemfa.com");
-            map.put("port","9501");
-            map.put("auto","yes");
-            map.put("session","yes");
-            map.put("clientId","181bc855e5877b283f33d5273e570b07");
+            map.put("host", "192.168.1.2");
+            map.put("port", "1883");
+            map.put("auto","");
+            map.put("session","");
+            map.put("clientId","");
         }
         map.put("id", id+"");
         showValue();
-
         return root;
     }
 
     @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+    public void onOptionsMenuCreated(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.edit, menu);
-        super.onCreateOptionsMenu(menu, inflater);
+        super.onOptionsMenuCreated(menu, inflater);
     }
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId()==R.id.action_save){
+    public boolean onOptionsMenuSelected(@NonNull MenuItem item) {
+        if(item.getItemId()==R.id.action_lock){
             if(save()){
-                int brokerId = SPUtils.getInstance().getInt("broker_id");
+                int brokerId = SPUtil.getBrokerId();
                 if(id == brokerId){
                     getMainActivity().startMqttService();
                 }
-                Navigation.findNavController(getView()).navigateUp();
+                Navigation.findNavController(requireView()).navigateUp();
             }
         }else if(item.getItemId()==R.id.action_remove){
             if(DeviceHelper.hasDevice(id)){
-                Utils.showToast("无法删除：该连接下有设备");
+                showToast("无法删除：该连接下有设备");
             }else if(BrokerHelper.has(id)){
                 ConfirmDialog.show(getParentFragmentManager(), "确认要删除此连接？", v -> {
                     if(DeviceHelper.remove(id)) {
-                        Navigation.findNavController(getView()).navigateUp();
-                        Utils.showToast("删除设备成功");
+                        Navigation.findNavController(requireView()).navigateUp();
+                        showToast("删除设备成功");
                     }
                 });
             }else{
-                Utils.showToast("连接信息不存在");
+                showToast("连接信息不存在");
             }
         }
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsMenuSelected(item);
     }
 
     public void showValue(){
@@ -177,7 +172,7 @@ public class BrokerFragment extends AbsFragment {
             Utils.showToast(getActivity(),"保存失败");
             return false;
         }
-        //SPUtils.getInstance().putMap(Constants.BROKER, map);
+        //SPUtils.putMap(Constants.BROKER, map);
         //return true;
     }
 }

@@ -6,7 +6,7 @@
     android:layout_height="60dp"
     android:gravity="center"
     android:orientation="horizontal"
-    tools:context=".ui.dialog.DeviceDialog">
+    tools:context=".dialog.ListDialog">
 
     <ImageView
         android:id="@+id/listview_option_icon"

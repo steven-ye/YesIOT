@@ -1,5 +1,6 @@
 package com.example.yesiot.helper;
 
+import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 abstract class AbstractHelper {
+    final static String table = "";
+
     public static Map<String, String> getMap(String table, int id){
         SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
         Map<String, String> map = new HashMap<>();
@@ -33,22 +36,22 @@ abstract class AbstractHelper {
     }
 
     public static List<Map<String, String>> getMapList(String table, String selection, String[] args){
-        SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance();
         String sql = "select * from "+table;
         if(!TextUtils.isEmpty(selection)){
             sql += " where "+selection;
         }
         List<Map<String, String>> list = new ArrayList<>();
-        if(!db.isOpen()) {
+        if(!dbHelper.getReadableDatabase().isOpen()) {
             return list;
         };
-        Cursor cursor = db.rawQuery(sql,args);
+        Cursor cursor = dbHelper.query(sql,args);
         //Cursor cursor = db.query(table,null, selection, args, null, null, null);
         while(cursor.moveToNext()){
             list.add(getMap(cursor));
         }
         cursor.close();
-        db.close();
+        dbHelper.close();
         return list;
     }
 
@@ -64,10 +67,13 @@ abstract class AbstractHelper {
         return num>0;
     }
 
-    public static String getColumn(Cursor cursor, String name){
+    @SuppressLint("Range")
+    protected static String getColumn(Cursor cursor, String name){
         return cursor.getString(cursor.getColumnIndex(name));
     }
-    public static int getColumnInt(Cursor cursor, String name){
+
+    @SuppressLint("Range")
+    protected static int getColumnInt(Cursor cursor, String name){
         return cursor.getInt(cursor.getColumnIndex(name));
     }
 }

@@ -70,38 +70,37 @@ public class BrokerHelper extends AbstractHelper {
     }
 
     public static List<Map<String,String>> getList(int userId){
-        SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM "+table+" WHERE user_id=?",new String[]{userId+""});
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance();
+        Cursor cursor = dbHelper.select(table, null, "user_id=?", new String[]{userId+""});
         List<Map<String,String>> list = new ArrayList<>();
         while(cursor.moveToNext()){
             list.add(getMap(cursor));
         }
         cursor.close();
-        db.close();
+        dbHelper.close();
         return list;
     }
 
     public static List<Map<String,String>> getList(){
-        SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM "+table,null);
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance();
+        Cursor cursor = dbHelper.select(table,null,null,null);
         List<Map<String,String>> list = new ArrayList<>();
         while(cursor.moveToNext()){
-            Log.w("BrokerHelper", getMap(cursor).toString());
             list.add(getMap(cursor));
         }
         cursor.close();
-        db.close();
+        dbHelper.close();
         return list;
     }
 
     public static boolean has(int id){
         boolean result;
         if(id<1)return false;
-        SQLiteDatabase db = DatabaseHelper.getInstance().getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM "+table+" WHERE id=?", new String[]{id+""});
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance();
+        Cursor cursor = dbHelper.select(table,null,"id=?", new String[]{ id+"" });
         result = cursor.moveToFirst();
         cursor.close();
-        db.close();
+        dbHelper.close();
         return result;
     }
 }

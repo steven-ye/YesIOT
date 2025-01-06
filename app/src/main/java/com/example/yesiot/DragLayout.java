@@ -21,6 +21,7 @@ public class DragLayout extends RelativeLayout
 {
     private ViewDragHelper viewDragHelper;
     private boolean draggable = true;
+    private int step = 20;
 
     public DragLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -67,17 +68,17 @@ public class DragLayout extends RelativeLayout
                     int left = child.getLeft();
                     int top = child.getTop();
 
-                    int mod = top % 10;
-                    top = top / 10;
-                    top = top * 10;
+                    int mod = top % step;
+                    top = top / step;
+                    top = top * step;
                     if(mod > 5){
-                        top = top + 10;
+                        top = top + step;
                     }
-                    mod = left % 10;
-                    left = left / 10;
-                    left = left * 10;
+                    mod = left % step;
+                    left = left / step;
+                    left = left * step;
                     if(mod > 5){
-                        left = left + 10;
+                        left = left + step;
                     }
                     child.setLeft(left);
                     child.setTop(top);

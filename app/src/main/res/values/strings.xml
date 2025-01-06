@@ -1,10 +1,10 @@
 <resources>
     <string name="app_name">掌控智能</string>
-    <string name="app_version">0.1.0</string>
-    <string name="app_author">Steven Ye</string>
-    <string name="app_email">steven_ye@foxmail.com</string>
-    <string name="app_copyright">版权所有 &#169;2021</string>
-    <string name="app_date">2021年4月18日</string>
+    <string name="app_version">1.3.1</string>
+    <string name="app_author">作者: Steven Ye</string>
+    <string name="app_email">电邮：steven_ye@foxmail.com</string>
+    <string name="app_copyright">版权所有 &#169;2021&#8211;2024 Steven Ye</string>
+    <string name="app_date">发行时间: 2024.05.13</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
@@ -19,11 +19,15 @@
     <string name="nav_panel">{title}</string>
     <string name="nav_device">添加设备</string>
     <string name="nav_broker">连接信息</string>
+    <string name="nav_qrcode">扫码登录</string>
+    <string name="nav_bluetooth">蓝牙设备</string>
 
     <string name="action_add">添加</string>
     <string name="action_lock">锁定</string>
     <string name="action_unlock">打开</string>
     <string name="action_cloud">状态</string>
+    <string name="action_option">更多</string>
+    <string name="action_debug">调试</string>
     <string name="action_cloud_done">在线</string>
     <string name="action_cloud_fail">离线</string>
 
@@ -33,11 +37,13 @@
     <string name="delete">删除</string>
     <string name="remove">移除</string>
     <string name="save">保存</string>
-    <string name="lastwill">遗嘱</string>
+    <string name="subscribe">订阅主题</string>
     <string name="topic">主题</string>
     <string name="message">消息</string>
+    <string name="lastwill">遗嘱消息</string>
     <string name="online">在线</string>
     <string name="offline">离线</string>
+    <string name="checkbox_export">高级选项</string>
 
     <!-- dialog_broker -->
     <string name="action_select">启用</string>
@@ -80,8 +86,8 @@
     <string name="device_sub_topic">接收主题</string>
     <string name="device_topic">发送主题</string>
     <string name="device_payload">发送载荷</string>
+    <string name="device_weight">排序权重</string>
     <string name="device_not_exist">设备不存在</string>
-    <string name="expert_option">自定义</string>
     <string name="option_notice">如果不知道怎么填，请留空</string>
     <string name="option_mqtt">MQTT</string>
     <string name="option_tcp">TCP</string>
@@ -117,6 +123,16 @@
     <string name="tcp_button_send">发送</string>
     <string name="tcp_connect_done">TCP连接成功</string>
     <string name="tcp_connect_fail">TCP连接已断开</string>
+
+    <!-- fragment_bluetooth -->
+    <string name="text_bluetooth_connect">连接设备</string>
+    <string name="menu_bluetooth_scan">扫描设备</string>
+
+    <!-- fragment_qrcode -->
+    <string name="menu_qrcode">扫码</string>
+    <string name="qrcode_title">扫码登录</string>
+    <string name="qrcode_button_ok">确认登录</string>
+    <string name="qrcode_message_default">准备扫码</string>
 
     <!-- SmartRefreshLayout -->
     <string name="srl_header_pulling">下拉可以刷新</string>

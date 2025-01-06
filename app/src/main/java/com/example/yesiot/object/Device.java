@@ -1,7 +1,5 @@
 package com.example.yesiot.object;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +17,7 @@ public class Device {
     private String sub = "";
     private String topic = "";
     private String payload = "";
-    private String cmdOff = "";
+    private String weight = "0";
     private String status = "";
     private String state = "";
     private String broker;
@@ -141,7 +139,16 @@ public class Device {
         return pins;
     }
 
-    @NotNull
+    public void setWeight(String weight) {
+        this.weight = weight;
+    }
+    public void setWeight(int weight) {
+        this.weight = weight+"";
+    }
+    public int getWeight() {
+        return Integer.parseInt(weight);
+    }
+
     public String toString(){
         return "id:"+id+",name:"+name+",code:"+code+",ip:"+ip+",port:"+port
                 +",topic:"+topic;

@@ -19,38 +19,27 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Size;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.NotificationCompat;
 
-import com.example.yesiot.IApplication;
 import com.example.yesiot.MainActivity;
 import com.example.yesiot.R;
 import com.example.yesiot.object.Constants;
 import com.example.yesiot.object.Device;
-import com.example.yesiot.service.MQTTService;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.regex.Pattern;
 
 public class Utils {
-    public static String getTopic(Device device){
-        String topic = device.getTopic();
-        if(!TextUtils.isEmpty(topic))return topic;
-        topic = Constants.TOPIC_PREFIX;
-        if(!TextUtils.isEmpty(device.getTheme())){
-            topic = topic + device.getTheme() + "/";
-        }
-        if(!TextUtils.isEmpty(device.getCode())) {
-            topic = topic + "/" + device.getCode();
-        }
-        return topic + "/cmd";
+    public static byte[] getBytes(String str){
+        return str.getBytes(StandardCharsets.UTF_8);
     }
     public static String getSubTopic(Device device){
         String topic = device.getSub();
@@ -65,9 +54,20 @@ public class Utils {
         return topic + "/status";
     }
 
+    public static String getText(EditText et)
+    {
+        if(et.getText() == null) return null;
+        return et.getText().toString();
+    }
+
     public static Size getScreenSize(Context context){
+        /*
         DisplayMetrics dm = new DisplayMetrics();
-        context.getDisplay().getRealMetrics(dm);
+        WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        manager.getDefaultDisplay().getRealMetrics(dm);
+        */
+
+        DisplayMetrics dm = context.getResources().getDisplayMetrics();
         int width = dm.widthPixels;  // 屏幕宽度（像素）
         int height= dm.heightPixels; // 屏幕高度（像素）
 
@@ -75,18 +75,14 @@ public class Utils {
     }
 
     public static int getScreenWidth(Context context){
-        DisplayMetrics dm = new DisplayMetrics();
-        context.getDisplay().getRealMetrics(dm);
+        DisplayMetrics dm = context.getResources().getDisplayMetrics();
         return dm.widthPixels;
     }
     public static int getScreenHeight(Context context){
-        Size size = getScreenSize(context);
-        return size.getHeight();
+        DisplayMetrics dm = context.getResources().getDisplayMetrics();
+        return dm.heightPixels;
     }
 
-    public static void showToast(String message){
-        showToast(IApplication._getContext(), message);
-    }
     public static void showToast(Context context, String message){
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
@@ -99,7 +95,7 @@ public class Utils {
     public static void alert(Context context, String[] items){
         AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setCancelable(false)
-                .setIcon(R.drawable.ic_led)
+                .setIcon(R.mipmap.ic_launcher)
                 .setTitle("温馨提示")
                 .setItems(items,null)
                 .setPositiveButton("确定", null);
@@ -111,40 +107,49 @@ public class Utils {
         String name = "channelName";
         String CHANNEL_ID = context.getString(R.string.app_name);
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel channel = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_HIGH);
+            channel = new NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_HIGH);
             channel.enableVibration(true);
             channel.setVibrationPattern(new long[]{3});
             channel.enableLights(false);
+            channel.enableVibration(true);
             channel.setSound(null, null);
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
-            }
+        }
+        assert notificationManager != null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.createNotificationChannel(channel);
         }
         notificationManager.notify(1,buildNotification(context, CHANNEL_ID, message));
         //context.startForeground(NOTIFICATION_ID, buildNotification());
     }
 
-    public static Notification buildNotification(Context context, String channel_id, String message) {
+    public static Notification buildNotification(Context context, String channelId, String message) {
         Intent intent=new Intent(context, MainActivity.class);
+        PendingIntent pendingIntent;
         //PendingIntent点击通知后跳转，一参：context 二参：一般为0 三参：intent对象 四参：一般为0
-        PendingIntent pendingIntent=PendingIntent.getActivity(context,1,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification.Builder builder = new Notification.Builder(context)
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
+            //PendingIntent pendingIntent=PendingIntent.getActivity(context,1,intent,PendingIntent.FLAG_IMMUTABLE);
+            pendingIntent=PendingIntent.getBroadcast(context, 1, intent, PendingIntent.FLAG_IMMUTABLE);
+        }else{
+            //PendingIntent pendingIntent=PendingIntent.getActivity(context,1,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+            pendingIntent=PendingIntent.getBroadcast(context, 1, intent, 0);
+        }
+        Notification.Builder builder;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            builder = new Notification.Builder(context,channelId);
+            builder.setChannelId(channelId);
+        }else{
+            builder = new Notification.Builder(context);
+        }
+        builder.setSmallIcon(R.mipmap.ic_launcher)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(context.getString(R.string.app_name))
                 .setContentText(message)
-                .setPriority(Notification.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
-                .setAutoCancel(true) //完成跳转自动取消通知
-                .setWhen(System.currentTimeMillis())
-                .setDefaults(NotificationCompat.FLAG_ONLY_ALERT_ONCE)
-                .setVibrate(new long[]{3})
-                .setSound(null);
+                .setAutoCancel(true);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder.setChannelId(channel_id);
-        }
-        Notification notification = builder.build();
+                Notification notification = builder.build();
         notification.flags = Notification.FLAG_FOREGROUND_SERVICE;
         return notification;
     }
@@ -156,7 +161,7 @@ public class Utils {
      */
     public static boolean isDoubleOrFloat(String str) {
         if(TextUtils.isEmpty(str))return false;
-        Pattern pattern = Pattern.compile("^[-\\+]?[.\\d]*$");
+        Pattern pattern = Pattern.compile("^[-+]?[.\\d]*$");
         return pattern.matcher(str).matches();
     }
 
@@ -186,8 +191,9 @@ public class Utils {
      */
     public static Drawable getAssetsDrawable(Context context, String path){
         AssetManager am = context.getAssets();
-        InputStream inputStream = null;
-        Drawable drawable = null;
+        InputStream inputStream;
+        Drawable drawable;
+        drawable = null;
         try {
             inputStream = am.open(path);
             drawable = Drawable.createFromStream(inputStream, null);
@@ -204,9 +210,9 @@ public class Utils {
 
     /**
      * 生成一个startNum 到 endNum之间的随机数(不包含endNum的随机数)
-     * @param startNum
-     * @param endNum
-     * @return
+     * @param startNum int
+     * @param endNum int
+     * @return int
      */
     public static int getNum(int startNum,int endNum){
         if(endNum > startNum){
@@ -242,10 +248,8 @@ public class Utils {
             deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         } else {
             final TelephonyManager mTelephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                    return "";
-                }
+            if (context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                return "";
             }
             assert mTelephony != null;
             if (mTelephony.getDeviceId() != null)
@@ -273,6 +277,7 @@ public class Utils {
             e.printStackTrace();
         }
 
+        assert paths != null;
         for (String path : paths) {
             if (path.endsWith(".png")) {  // 根据图片特征找出图片
                 if(!TextUtils.isEmpty(ImagePath)){
@@ -295,12 +300,30 @@ public class Utils {
                 .replaceAll("#", "(.+)") + "$";
     }
 
+    public static String bytes2PrintHex(byte[] bytes){
+        StringBuilder stringBuilder = new StringBuilder();
+        if (bytes == null || bytes.length <= 0) {
+            return null;
+        }
+        for (byte b : bytes) {
+            int v = b & 0xFF;
+            String hv = Integer.toHexString(v);
+            if (hv.length() < 2) {
+                stringBuilder.append(0);
+            }
+            stringBuilder.append(hv);
+            stringBuilder.append(" ");
+        }
+        stringBuilder.deleteCharAt(stringBuilder.length()-1);
+        return stringBuilder.toString().toUpperCase();
+    }
+
     /** Convert byte[] to hex string.这里我们可以将byte转换成int，然后利用Integer.toHexString(int)来转换成16进制字符串。
      * @param src byte[] data
      * @return hex string
      */
-    public static String bytesToHexString(byte[] src){
-        StringBuilder stringBuilder = new StringBuilder("");
+    public static String bytesToHex(byte[] src){
+        StringBuilder stringBuilder = new StringBuilder();
         if (src == null || src.length <= 0) {
             return null;
         }
@@ -312,8 +335,9 @@ public class Utils {
             }
             stringBuilder.append(hv);
         }
-        return stringBuilder.toString();
+        return stringBuilder.toString().toUpperCase();
     }
+
 
 
     /**
@@ -322,7 +346,7 @@ public class Utils {
      * @return byte[]
      */
     public static byte[] hexStringToBytes(String hexString) {
-        if (hexString == null || hexString.equals("")) {
+        if (hexString == null || hexString.isEmpty()) {
             return null;
         }
         hexString = hexString.toUpperCase();
@@ -344,7 +368,38 @@ public class Utils {
     private static byte charToByte(char c) {
         return (byte) "0123456789ABCDEF".indexOf(c);
     }
-
+    /**
+     * Hex字符串转byte
+     * @param inHex 待转换的Hex字符串
+     * @return  转换后的byte
+     */
+    public static byte hexToByte(String inHex){
+        return (byte)Integer.parseInt(inHex,16);
+    }
+    /**
+     * hex字符串转byte数组
+     * @param inHex 待转换的Hex字符串
+     * @return  转换后的byte数组结果
+     */
+    public static byte[] hexToBytes(String inHex){
+        int hexlen = inHex.length();
+        byte[] result;
+        if (hexlen % 2 == 1){
+            //奇数
+            hexlen++;
+            result = new byte[(hexlen/2)];
+            inHex="0"+inHex;
+        }else {
+            //偶数
+            result = new byte[(hexlen/2)];
+        }
+        int j=0;
+        for (int i = 0; i < hexlen; i+=2){
+            result[j]=hexToByte(inHex.substring(i,i+2));
+            j++;
+        }
+        return result;
+    }
 
 
     public static int dp2px(Context context, float dp) {

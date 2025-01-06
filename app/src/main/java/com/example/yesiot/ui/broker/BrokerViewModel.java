@@ -1,7 +1,6 @@
 package com.example.yesiot.ui.broker;
 
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
@@ -24,9 +23,9 @@ public class BrokerViewModel {
     public EditText et_message;
     public CheckBox cb_auto;
     public CheckBox cb_session;
-    public CheckedTextView ctv_lastwill;
+    public CheckedTextView ctv_export;
     public Spinner spinner;
-    public View row_lastwill;
+    public View row_ctv_export;
 
     public BrokerViewModel(View root){
         et_name = root.findViewById(R.id.link_name);
@@ -42,9 +41,9 @@ public class BrokerViewModel {
         et_message = root.findViewById(R.id.link_message);
         cb_auto = root.findViewById(R.id.checkbox_auto);
         cb_session = root.findViewById(R.id.checkbox_session);
-        ctv_lastwill = root.findViewById(R.id.lastwill);
+        ctv_export = root.findViewById(R.id.ctv_export);
         spinner = root.findViewById(R.id.link_protocol);
-        row_lastwill = root.findViewById(R.id.row_lastwill);
+        row_ctv_export = root.findViewById(R.id.row_ctv_export);
     }
 
     public String getProtocol(int position){

@@ -18,8 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.navigation.Navigation;
 
 import com.example.yesiot.AbsFragment;
-import com.example.yesiot.ui.dialog.ConfirmDialog;
-import com.example.yesiot.ui.dialog.ImagesDialog;
+import com.example.yesiot.dialog.ConfirmDialog;
+import com.example.yesiot.dialog.ImagesDialog;
 import com.example.yesiot.R;
 import com.example.yesiot.helper.DeviceHelper;
 import com.example.yesiot.helper.PanelHelper;
@@ -36,11 +36,8 @@ public class DeviceFragment extends AbsFragment {
 
         View root = inflater.inflate(R.layout.fragment_device, container, false);
         viewModel = new DeviceViewModel(root);
-
         viewModel.et_name.addTextChangedListener(new EmptyTextWachter(viewModel.layout_name, "设备名称不能为空"));
-
         viewModel.et_code.addTextChangedListener(new EmptyTextWachter(viewModel.layout_code, "设备ID不能为空"));
-
         viewModel.device_image.setOnClickListener(v->{
             ImageView iv = (ImageView) v;
             ImagesDialog dialog = new ImagesDialog();
@@ -69,31 +66,36 @@ public class DeviceFragment extends AbsFragment {
     }
 
     @Override
+    public void onOptionsMenuCreated(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.edit, menu);
+    }
+/*
+    @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.edit, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
+ */
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId()==R.id.action_save){
+    public boolean onOptionsMenuSelected(@NonNull MenuItem item) {
+        if(item.getItemId()==R.id.action_lock){
             save();
         }else if(item.getItemId()==R.id.action_remove){
             Device device = viewModel.getDevice();
             if(device.getId()>0){
-                ConfirmDialog.show(getParentFragmentManager(), "此操作不可恢复，确认要删除此设备？", v -> {
-                    ConfirmDialog.show(getParentFragmentManager(), "请再次确认要删除此设备！", v1 -> {
-                        String message = "删除设备失败";
-                        PanelHelper.remove(device.getId());
-                        if (!PanelHelper.hasPanel(device.getId()) && DeviceHelper.remove(device.getId())) {
-                            Navigation.findNavController(getView()).navigateUp();
-                            message = "删除设备成功";
-                        }
-                        Utils.showToast(message);
-                    });
-                });
+                ConfirmDialog.show(getParentFragmentManager(), "此操作不可恢复，确认要删除此设备？", v -> ConfirmDialog.show(getParentFragmentManager(), "请再次确认要删除此设备！", v1 -> {
+                    String message = "删除设备失败";
+                    PanelHelper.remove(device.getId());
+                    if (!PanelHelper.hasPanel(device.getId()) && DeviceHelper.remove(device.getId())) {
+                        Navigation.findNavController(requireView()).navigateUp();
+                        message = "删除设备成功";
+                    }
+                    showToast(message);
+                }));
             }
         }
-        return super.onOptionsItemSelected(item);
+        //return super.onOptionsItemSelected(item);
+        return super.onOptionsMenuSelected(item);
     }
 
     private void save(){
@@ -112,10 +114,10 @@ public class DeviceFragment extends AbsFragment {
         }
 
         if(DeviceHelper.save(viewModel.getDevice())){
-            Navigation.findNavController(getView()).navigateUp();
-            Utils.showToast("保存成功");
+            Navigation.findNavController(requireView()).navigateUp();
+            showToast("保存成功");
         }else{
-            Utils.showToast("保存失败");
+            showToast("保存失败");
         }
     }
 

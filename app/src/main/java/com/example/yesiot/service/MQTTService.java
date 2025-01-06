@@ -4,11 +4,11 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.Build;
@@ -17,134 +17,110 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.core.app.NotificationCompat;
-
-import com.example.yesiot.MainActivity;
-import com.example.yesiot.R;
-import com.example.yesiot.helper.BrokerHelper;
-import com.example.yesiot.util.SPUtils;
+import com.example.yesiot.object.Broker;
 import com.example.yesiot.util.Utils;
 
-import org.eclipse.paho.android.service.MqttAndroidClient;
+import info.mqtt.android.service.Ack;
+import info.mqtt.android.service.MqttAndroidClient;
+//import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import java.util.Map;
 import java.util.Objects;
 
 public class MQTTService extends Service {
     public static final String TAG = "MQTTService";
 
-    private final int NOTIFICATION_ID = 1001;
-    NotificationManager notificationManager;
-
     private MQTTCallBack mCallBack;
+    private MqttConnectOptions options;
     @SuppressLint("StaticFieldLeak")
     private static MqttAndroidClient client;
-    private MqttConnectOptions options;
 
-    private boolean autoReconnect = false;
-    private String lastWillTopic = "";      //要订阅的主题
-
-    public static int getBrokerId(){
-        return SPUtils.getInstance().getInt("broker_id");
-    }
-
+    @SuppressLint("ForegroundServiceType")
     @Override
     public void onCreate() {
         super.onCreate();
+        String channelID = "MqttService";
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel channel;
+        Notification notification;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            channel = new NotificationChannel(channelID, TAG, NotificationManager.IMPORTANCE_HIGH);
+            manager.createNotificationChannel(channel);
+
+            notification = new Notification.Builder(getApplicationContext(), channelID).build();
+        }else{
+            notification = new Notification.Builder(getApplicationContext()).build();
+        }
+        startForeground(1, notification);
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.e(getClass().getName(), "onBind");
+        //Log.d(getClass().getName(), "MQTT Service onBind");
         init();
         return new CustomBinder();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        createNotification();
+        Utils.createNotification(getApplicationContext(), "MQTT Service 已经启动");
         return super.onStartCommand(intent, flags, startId);
     }
 
     private void init() {
         //Map<String,String> settings = Utils.getBroker(getApplicationContext());
-        int brokerId = getBrokerId();
-        if(!BrokerHelper.has(brokerId)){
-            Utils.showToast("没有选择连接服务器");
+        Broker.get();
+        if(TextUtils.isEmpty(Broker.host)){
+            Utils.showToast(getApplicationContext(), "没有选择连接服务器");
             return;
         }
-        Map<String,String> map = BrokerHelper.get(brokerId);
 
-        String protocol = map.get("protocol");
-        String host = map.get("host");
-        String port = map.get("port");
-        String path = map.get("path");
-        if(TextUtils.isEmpty(protocol))protocol="tcp";
-        String clientId = map.get("clientId");
-        String userName = map.get("username");
-        String passWord = map.get("password");
-        int alive = Integer.parseInt(map.get("alive"));
-        int timeout = Integer.parseInt(map.get("timeout"));
-        boolean cleanSession = Objects.equals(map.get("session"),"yes");
-        autoReconnect= Objects.equals(map.get("auto"),"yes");
-        String lastWill = map.get("message");
-        lastWillTopic = map.get("topic");
-
-        if(TextUtils.isEmpty(protocol))protocol="tcp";
-        if(TextUtils.isEmpty(port))port="1883";
-        if(TextUtils.isEmpty(clientId))clientId=Utils.getRandomString(8);
-        if(TextUtils.isEmpty(passWord))passWord="";
-
-        String serverUrl = protocol+"://"+host+":"+port;
-        if(!TextUtils.isEmpty(path)){
-            serverUrl = serverUrl + path;
-        }
+        String serverUrl = Broker.getUrl();
         // 服务器地址（协议+地址+端口号）
         Log.i(TAG, "Broker >>" + serverUrl);
-        Log.i(TAG, "clientId >> " + clientId);
-        if(TextUtils.isEmpty(host)){
-            Utils.showToast("没有设置MQTT服务器地址");
+        Log.i(TAG, "clientId >> " + Broker.clientId);
+
+        if(TextUtils.isEmpty(Broker.host)){
+            Utils.showToast(getApplicationContext(), "没有设置MQTT服务器地址");
             return;
         }
 
-        client = new MqttAndroidClient(getApplicationContext(), serverUrl, clientId);
+        client = new MqttAndroidClient(getApplicationContext(), serverUrl, Broker.clientId, Ack.AUTO_ACK);
         // 设置MQTT监听并且接受消息
         client.setCallback(mqttCallback);
 
         options = new MqttConnectOptions();
         // 设置超时时间，单位：秒
-        options.setConnectionTimeout(timeout);
+        options.setConnectionTimeout(Broker.timeout);
         // 心跳包发送间隔，单位：秒
-        options.setKeepAliveInterval(alive);
+        options.setKeepAliveInterval(Broker.alive);
         // 用户名
-        options.setUserName(userName);
+        options.setUserName(Broker.username);
         // 密码
-        options.setPassword(passWord.toCharArray());     //将字符串转换为字符串数组
+        options.setPassword(Broker.password.toCharArray());     //将字符串转换为字符串数组
         // 自动重连
-        options.setAutomaticReconnect(autoReconnect);
+        options.setAutomaticReconnect(Broker.auto);
         // 设置清空Session，false表示服务器会保留客户端的连接记录，true表示每次以新的身份连接到服务器
-        options.setCleanSession(cleanSession);
+        options.setCleanSession(Broker.session);
 
         boolean doConnect = true;
         // last will message
-        int qos = 0;
-        boolean retained = false;
+        //int qos = 0;
+        //boolean retained = false;
         // 最后的遗嘱
         // MQTT本身就是为信号不稳定的网络设计的，所以难免一些客户端会无故的和Broker断开连接。
         //当客户端连接到Broker时，可以指定LWT，Broker会定期检测客户端是否有异常。
         //当客户端异常掉线时，Broker就往连接时指定的topic里推送当时指定的LWT消息。
 
         try {
-            if(!TextUtils.isEmpty(lastWill)){
-                options.setWill(lastWillTopic, lastWill.getBytes(), qos, retained);
+            if(!TextUtils.isEmpty(Broker.message)){
+                options.setWill(Broker.topic, Broker.message.getBytes(), Broker.qos, Broker.retained);
             }
         } catch (Exception e) {
             Log.i(TAG, "Exception Occured", e);
@@ -161,59 +137,49 @@ public class MQTTService extends Service {
     public static boolean isConnected(){
         return client != null && client.isConnected();
     }
+
+    public static void publish(String msg){
+        publish(Broker.topic + "/set", msg);
+    }
     public static void publish(String topic, String msg){
         publish(topic,msg,0,false);
     }
     public static void publish(String topic, String msg, int qos, boolean retained){
-        try {
-            if(client.isConnected()){
-                client.publish(topic, msg.getBytes(), qos, retained);
-                Log.i(TAG, "MQTT <- ["+topic+"] "+msg);
-            }else{
-                Log.e(TAG,"发布失败：没有连接到broker.");
-                Utils.showToast("发布失败：没有连接到broker.");
-            }
-        } catch (MqttException e) {
-            e.printStackTrace();
-            Log.e(TAG, "发布失败 >> " + e.getMessage());
+        if(isConnected()){
+            client.publish(topic, msg.getBytes(), qos, retained);
+            Log.i(TAG, "MQTT <- ["+topic+"] "+msg);
+        }else{
+            Log.e(TAG,"发布失败：没有连接到broker.");
+            Utils.showToast(client.getContext(), "发布失败：没有连接到broker.");
         }
     }
 
     public static void subscribe(String topic){
-        subscribe(topic, 2);
+        subscribe(topic, 0);
     }
     public static void subscribe(String topic,int qos){
-        try {
-            if (client != null){
-                client.subscribe(topic, qos,null, new IMqttActionListener() {
-                    @Override
-                    public void onSuccess(IMqttToken asyncActionToken) {
-                        Log.v(TAG,"Subscribed >> "+topic);
-                    }
+        if (isConnected()){
+            client.subscribe(topic, qos,null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    Log.v(TAG,"Subscribed >> "+topic);
+                }
 
-                    @Override
-                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                        Log.e(TAG,"Failed to subscribe >> "+topic);
-                    }
-                });
-            }else{
-                Log.e(TAG,"订阅失败：没有连接到broker.");
-                Utils.showToast("订阅失败：没有连接到broker.");
-            }
-        } catch (MqttException e) {
-            e.printStackTrace();
-            Log.e(TAG, "订阅失败 >> " + e.getMessage());
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    Log.e(TAG,"Failed to subscribe >> "+topic);
+                }
+            });
+        }else{
+            Log.e(TAG,"订阅失败：没有连接到broker.");
+            Utils.showToast(client.getContext(), "订阅失败：没有连接到broker.");
         }
     }
 
     /** 连接MQTT服务器 */
     private void doClientConnection() {
         if (!client.isConnected() && isConnectIsNormal()) {
-            try {
-                client.connect(options, null, iMqttActionListener);
-            } catch (MqttException e) {
-                e.printStackTrace();
-            }
+            client.connect(options, null, iMqttActionListener);
         }
     }
 
@@ -221,7 +187,7 @@ public class MQTTService extends Service {
     private final IMqttActionListener iMqttActionListener = new IMqttActionListener() {
         @Override
         public void onSuccess(IMqttToken arg0) {
-            Log.i(TAG, "MQTT连接成功 ");
+            Log.v(TAG, "MQTT连接成功 ");
             if(mCallBack != null) {
                 mCallBack.onSuccess();
             }
@@ -229,9 +195,9 @@ public class MQTTService extends Service {
 
         @Override
         public void onFailure(IMqttToken arg0, Throwable arg1) {
-            arg1.printStackTrace();
+            //arg1.printStackTrace();
             Utils.showToast(getApplicationContext(),"MQTT连接失败");
-            Log.e(TAG, arg1.getMessage());
+            Log.e(TAG, Objects.requireNonNull(arg1.getMessage()));
             // 连接失败，重连
             if(mCallBack != null) {
                 mCallBack.onFailure();
@@ -243,14 +209,10 @@ public class MQTTService extends Service {
     private final MqttCallbackExtended mqttCallback = new MqttCallbackExtended() {
         @Override
         public void connectComplete(boolean reconnect, String serverURI) {
-            Log.i(TAG,"MQTT成功连接至 " + serverURI);
+            Log.v(TAG,"MQTT成功连接至 " + serverURI);
             Utils.createNotification(getApplicationContext(), "MQTT成功连接至 " + serverURI);
-            try {
-                // 订阅myTopic话题
-                client.subscribe(lastWillTopic,1);
-            } catch (MqttException e) {
-                e.printStackTrace();
-            }
+            // 订阅myTopic话题
+            if(!TextUtils.isEmpty(Broker.topic))client.subscribe(Broker.topic,1);
             if (mCallBack != null && reconnect){
                 mCallBack.onSuccess();
             }
@@ -279,7 +241,7 @@ public class MQTTService extends Service {
         @Override
         public void connectionLost(Throwable arg0) {
             Utils.createNotification(getApplicationContext(),"MQTT连接丢失");
-            Utils.showToast("MQTT连接丢失");
+            Utils.showToast(getApplicationContext(), "MQTT连接丢失");
             Log.i(TAG,"MQTT连接丢失");
             if(mCallBack != null)  mCallBack.onLost();
         }
@@ -287,11 +249,13 @@ public class MQTTService extends Service {
 
     /** 判断网络是否连接 */
     private boolean isConnectIsNormal() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext()
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = connectivityManager.getActiveNetworkInfo();
-        if (info != null && info.isAvailable()) {
-            String name = info.getTypeName();
+        Context context = getApplicationContext();
+        if (isNetworkAvailable(context)) {
+            ConnectivityManager connectivityManager = (ConnectivityManager) context
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            assert networkInfo != null;
+            String name = networkInfo.getSubtypeName();
             Log.i(TAG, "MQTT当前网络名称：" + name);
             return true;
         } else {
@@ -299,48 +263,42 @@ public class MQTTService extends Service {
             new Handler(getMainLooper()).postDelayed(this::doClientConnection, 3000);
             Utils.createNotification(getApplicationContext(),"没有可用网络");
             Utils.showToast(getApplicationContext(), "没有可用网络, 3秒后会再尝试连接");
-            Log.i(TAG, "MQTT 没有可用网络, 3秒后会再尝试连接");
+            Log.e(TAG, "MQTT 没有可用网络, 3秒后会再尝试连接");
             return false;
         }
     }
 
-    private void createNotification(){
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("mqttchannel", "MQTT服务", NotificationManager.IMPORTANCE_HIGH);
-            channel.enableVibration(false);
-            channel.setVibrationPattern(new long[]{0});
-            channel.enableLights(false);
-            channel.setSound(null, null);
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
+    public boolean isNetworkAvailable(Context context) {
+        if(context == null)  return false;
+
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        if (connectivityManager != null) {
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
+                if (capabilities != null) {
+                    if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                        return true;
+                    } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        return true;
+                    }  else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)){
+                        return true;
+                    }
+                }
+            } else {
+                try {
+                    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+                    if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
+                        Log.i("update_status", "Network is available : true");
+                        return true;
+                    }
+                } catch (Exception e) {
+                    Log.i("update_status", "" + e.getMessage());
+                }
             }
         }
-        startForeground(NOTIFICATION_ID, buildNotification());
-    }
-
-    private Notification buildNotification() {
-        Intent intent=new Intent(getApplicationContext(), MainActivity.class);
-        //PendingIntent点击通知后跳转，一参：context 二参：一般为0 三参：intent对象 四参：一般为0
-        PendingIntent pendingIntent=PendingIntent.getActivity(getApplicationContext(),1,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification.Builder builder = new Notification.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(getString(R.string.app_name))
-                .setContentText("已开启MQTT服务")
-                .setPriority(Notification.PRIORITY_DEFAULT)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true) //完成跳转自动取消通知
-                .setWhen(System.currentTimeMillis())
-                .setDefaults(NotificationCompat.FLAG_ONLY_ALERT_ONCE)
-                .setVibrate(new long[]{0})
-                .setSound(null);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder.setChannelId("mqttchannel");
-        }
-        Notification notification = builder.build();
-        notification.flags = Notification.FLAG_FOREGROUND_SERVICE;
-        return notification;
+        Log.i("update_status","Network is available : FALSE ");
+        return false;
     }
 
     @Override
@@ -356,10 +314,10 @@ public class MQTTService extends Service {
                 client = null;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            Log.w(TAG, e);
         }
         Log.w(TAG, "MQTT服务被终止！");
-        if(notificationManager!=null)notificationManager.cancel(NOTIFICATION_ID);
     }
 
     public void setCallBack(MQTTCallBack callBack){

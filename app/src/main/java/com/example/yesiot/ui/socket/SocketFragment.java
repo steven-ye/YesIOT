@@ -9,30 +9,26 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ScrollView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.example.yesiot.R;
+import com.example.yesiot.helper.OkHttpHelper;
 import com.example.yesiot.object.Constants;
 import com.example.yesiot.service.TcpClient;
 import com.example.yesiot.util.Utils;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
+
+import java.util.Objects;
 
 public class SocketFragment extends Fragment implements TcpClient.TcpCallback {
 
     private SocketViewModel viewModel;
     TcpClient client;
-    private String mIP="";
+    private String mIP="192.168.1.10";
+    private int mPort=Constants.TCP_SERVER_PORT;
     boolean isConnected = false;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -46,9 +42,10 @@ public class SocketFragment extends Fragment implements TcpClient.TcpCallback {
         return root;
     }
 
+    @SuppressLint("SetTextI18n")
     private void initViews() {
-        viewModel.et_ip.setText("192.168.1.10");
-        viewModel.et_port.setText(Constants.TCP_SERVER_PORT+"");
+        viewModel.et_ip.setText(mIP);
+        viewModel.et_port.setText(mPort+"");
 
         //设置默认滚动到底部
         viewModel.scrollView.post(() -> viewModel.scrollView.fullScroll(ScrollView.FOCUS_DOWN));
@@ -74,13 +71,21 @@ public class SocketFragment extends Fragment implements TcpClient.TcpCallback {
             public void afterTextChanged(Editable s) { }
         });
 
+        OkHttpHelper http = new OkHttpHelper((result, code) -> {
+            String message = result;
+            if(code>0){
+                message = "[" + code + "]" + result;
+            }
+            logAppend(message,2);
+        });
+
         viewModel.btn_connect.setOnClickListener(v -> {
             if(client.isConnect()){
                 client.disconnect();
                 isConnected = false;
             }else{
-                String ip = viewModel.et_ip.getText().toString();
-                String port = viewModel.et_port.getText().toString();
+                String ip = Objects.requireNonNull(viewModel.et_ip.getText()).toString();
+                String port = Objects.requireNonNull(viewModel.et_port.getText()).toString();
 
                 if(TextUtils.isEmpty(ip)){
                     viewModel.layoutIP.setError("IP地址为空");
@@ -100,13 +105,34 @@ public class SocketFragment extends Fragment implements TcpClient.TcpCallback {
         viewModel.btn_send.setOnClickListener(v -> {
             String msg = viewModel.et_message.getText().toString();
             if (TextUtils.isEmpty(msg)){
-                Utils.showToast("请输入发送内容");
+                Utils.showToast(getContext(), "请输入发送内容");
+                return;
+            }
+            if(viewModel.cb_url.isChecked()) {
+                String ip = Utils.getText(viewModel.et_ip);
+                String port = Utils.getText(viewModel.et_port);
+                if(TextUtils.isEmpty(ip)){
+                    viewModel.layoutIP.setError("IP地址为空");
+                    return;
+                }
+                if(TextUtils.isEmpty(port)){
+                    viewModel.layoutPort.setError("端口号为空");
+                    return;
+                }
+                String url = ip + ":" + port;
+                if(msg.startsWith("/")){
+                    url += msg;
+                }else{
+                    url += "/" + msg;
+                }
+                http.get("http://" + url);
+                logAppend("[HTTP] " + url,1);
                 return;
             }
             if (client.isConnect()) {
                 sendMsg(msg);
             }else{
-                Utils.showToast("尚未连接，请连接Socket");
+                Utils.showToast(getContext(), "尚未连接，请连接Socket");
             }
         });
 
@@ -115,6 +141,13 @@ public class SocketFragment extends Fragment implements TcpClient.TcpCallback {
         viewModel.cb_url.setOnClickListener(v->{
             if(viewModel.cb_hex.isChecked()){
                 viewModel.cb_hex.setChecked(false);
+            }
+            CheckBox cb = (CheckBox) v;
+            if(cb.isChecked()){
+                viewModel.et_port.setText("80");
+                viewModel.btn_connect.setVisibility(View.INVISIBLE);
+            }else{
+                viewModel.btn_connect.setVisibility(View.VISIBLE);
             }
         });
         viewModel.cb_hex.setOnClickListener(v->{
@@ -163,8 +196,8 @@ public class SocketFragment extends Fragment implements TcpClient.TcpCallback {
             message = "GET "+url+" HTTP/1.1\r\n";
             message += "Host: " + mIP + "\r\n";
             message += "\r\n";
-            client.sendStrCmd(message, 1001);
             msg = "[HTTP] "+url;
+            client.sendStrCmd(message, 1001);
         }else if(viewModel.cb_hex.isChecked()){
             byte[] buffer = Utils.hexStringToBytes(msg);
             client.sendByteCmd(buffer, 1001);
@@ -177,10 +210,11 @@ public class SocketFragment extends Fragment implements TcpClient.TcpCallback {
 
     @Override
     public void onConnectSuccess(String ip, int port) {
-        Utils.showToast("成功连接到 " +ip+":"+port);
+        Utils.showToast(getContext(), "成功连接到 " +ip+":"+port);
         logAppend(getString(R.string.tcp_connect_done)+"<"+ip+":"+port+">",0);
         //logAppend("Host: "+ip+":"+port, 0);
         mIP = ip;
+        mPort = port;
         isConnected = true;
         updateStatus();
     }

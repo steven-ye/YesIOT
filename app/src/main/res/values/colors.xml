@@ -3,12 +3,18 @@
     <color name="colorPrimaryDark">#FF3197FF</color>
     <color name="colorPrimary">#FF3197FF</color>
     <color name="colorAccent">#FFBB86FC</color>
+    <color name="colorDefault">#FF333333</color>
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
-    <color name="background_main">#FFF5F5F5</color>
+    <color name="background_main">#D9D9D9</color>
+    <color name="background_live">#FFFFFF</color>
+    <color name="background_offline">#F9F9F9</color>
+    <color name="background_light">#F0F0F0</color>
+    <color name="border_live">#D5D5D5</color>
+    <color name="border_offline">#E9E9E9</color>
     <color name="border_grey">#F0C0C0C0</color>
     <color name="border_grey_light">#F0E0E0E0</color>
     <color name="border_blue">#F0C0C0C0</color>
@@ -33,7 +39,14 @@
     <color name="translucent">#33FFFFFF</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="light_grey">#A9A9A9</color>					<!--灰色 -->
+    <color name="light_grey">#A9A9A9</color>			<!--灰色 -->
     <color name="grey">#808080</color>					<!--灰色 -->
+    <color name="blue">#0000FF</color>
+    <color name="light_blue">#0066FF</color>
+    <color name="green">#009900</color>
+    <color name="light_green">#339933</color>
     <color name="dark_grey">#393939</color>				<!--暗灰色 -->
+    <color name="text_primary">#333333</color>			<!--暗灰色 -->
+    <color name="text_mute">#F0C0C0C0</color>			<!--暗灰色 -->
+    <color name="text_live">#3333FF</color>
 </resources>

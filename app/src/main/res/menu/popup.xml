@@ -1,0 +1,28 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu_setting_wifi"
+            android:title="使用WIFI"
+            android:orderInCategory="80"
+            android:icon="@drawable/ic_baseline_add_24"
+            app:showAsAction="ifRoom" />
+
+        <item
+            android:id="@+id/menu_setting_gps"
+            android:title="使用GPS"
+            android:orderInCategory="90"
+            android:icon="@drawable/ic_baseline_settings_24"
+            app:showAsAction="ifRoom" />
+    </group>
+
+    <group>
+        <item
+            android:id="@+id/menu_setting_userIcon"
+            android:title="设置头像"
+            android:icon="@drawable/ic_alarm"
+            android:orderInCategory="91"
+            app:showAsAction="never" />
+    </group>
+</menu>

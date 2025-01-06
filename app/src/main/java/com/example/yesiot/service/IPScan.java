@@ -9,7 +9,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.yesiot.object.Constants;
-import com.example.yesiot.util.IPUtils;
+import com.example.yesiot.util.IPUtil;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -54,7 +54,7 @@ public class IPScan {
     public void startScanning(Context context){
         // 本机IP地址-完整
         //String devAddress = getHostIP();// 获取本机IP地址
-        String devAddress = IPUtils.getIPAdress(context);
+        String devAddress = IPUtil.getIPAdress(context);
         Log.e(TAG, "开始扫描设备,本机Ip为：" + devAddress);
         startScanning(devAddress);
     }

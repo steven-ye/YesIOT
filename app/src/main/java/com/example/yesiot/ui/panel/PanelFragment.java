@@ -7,6 +7,7 @@ import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,7 +26,7 @@ import com.example.yesiot.AbsFragment;
 import com.example.yesiot.PanelLayout;
 import com.example.yesiot.R;
 import com.example.yesiot.TypeAdapter;
-import com.example.yesiot.ui.dialog.ConfirmDialog;
+import com.example.yesiot.dialog.ConfirmDialog;
 import com.example.yesiot.helper.PanelHelper;
 import com.example.yesiot.object.Panel;
 import com.example.yesiot.util.Utils;
@@ -55,35 +56,35 @@ public class PanelFragment extends AbsFragment {
             panel = PanelHelper.get(id);
         }else{
             panel = new Panel();
+            panel.deviceId = args.getInt("deviceId");
         }
-        panel.deviceId = args.getInt("deviceId");
         initView();
         addTextWatcher();
         return root;
     }
 
     @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+    public void onOptionsMenuCreated(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.edit, menu);
-        super.onCreateOptionsMenu(menu, inflater);
+        super.onOptionsMenuCreated(menu, inflater);
     }
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId()==R.id.action_save){
+    public boolean onOptionsMenuSelected(@NonNull MenuItem item) {
+        if(item.getItemId()==R.id.action_lock){
             save();
         }else if(item.getItemId()==R.id.action_remove){
             if(panel.id>0){
                 ConfirmDialog.show(getParentFragmentManager(), "确认要删除此面板/按钮？", v -> {
                     if(PanelHelper.delete(panel.id)) {
-                        Utils.showToast("删除面板/按钮成功");
-                        Navigation.findNavController(getView()).navigateUp();
+                        showToast("删除面板/按钮成功");
+                        Navigation.findNavController(requireView()).navigateUp();
                     }else{
-                        Utils.showToast("删除失败");
+                        showToast("删除失败");
                     }
                 });
             }
         }
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsMenuSelected(item);
     }
 
     public void addTextWatcher(){
@@ -101,7 +102,7 @@ public class PanelFragment extends AbsFragment {
         viewModel.recyclerView.setLayoutManager(layoutManager);
         if(panel.type == 2){
             adapter = new TypeAdapter(PanelLayout.DATA_OPTIONS);
-            if(panel.design>1)panel.design = 1;
+            if(panel.design>2)panel.design = 0;
         }else{
             adapter = new TypeAdapter(PanelLayout.BUTTON_OPTIONS);
             if(panel.design>4)panel.design = 4;
@@ -111,6 +112,7 @@ public class PanelFragment extends AbsFragment {
         adapter.setOnClickListener(v -> panel.design = viewModel.recyclerView.getChildAdapterPosition(v));
     }
 
+    @SuppressLint("SetTextI18n")
     public void initView(){
         initRecyclerView();
         viewModel.et_name.setText(panel.name);
@@ -124,12 +126,12 @@ public class PanelFragment extends AbsFragment {
         viewModel.et_unit_size.setText(panel.unit_size);
         viewModel.et_payload.setText(panel.payload);
 
-        setVisible(panel.type);
+        viewModel.setVisible(panel.type);
 
         for(int i=0;i<radios.length;i++){
-            RadioButton radioButton = new RadioButton(getActivity());
+            RadioButton radioButton = new RadioButton(getContext());
             radioButton.setId(i);
-            radioButton.setTag("panel_radion_"+i);
+            radioButton.setTag("panel_radio_"+i);
             radioButton.setText(radios[i]);
             RadioGroup.LayoutParams layoutParams = new RadioGroup.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
             layoutParams.weight = 1;
@@ -139,23 +141,15 @@ public class PanelFragment extends AbsFragment {
         //viewModel.radioGroup.clearCheck();
         //viewModel.radioGroup.check(panel.type);
         Log.w("PanelFragment", "checked type is "+panel.type);
-        viewModel.radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @SuppressLint("NonConstantResourceId")
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                Utils.showToast(radios[checkedId]);
-                panel.type = checkedId;
-                if(panel.type == 2){
-                    adapter.setList(PanelLayout.DATA_OPTIONS);
-                    viewModel.row_panel_icon.setVisibility(View.GONE);
-                    viewModel.row_on_off.setVisibility(View.GONE);
-                }else{
-                    adapter.setList(PanelLayout.BUTTON_OPTIONS);
-                    viewModel.row_panel_icon.setVisibility(View.VISIBLE);
-                    viewModel.row_on_off.setVisibility(View.VISIBLE);
-                }
-                setVisible(panel.type);
+        viewModel.radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            showToast(radios[checkedId]);
+            panel.type = checkedId;
+            if(panel.type == 2){
+                adapter.setList(PanelLayout.DATA_OPTIONS);
+            }else{
+                adapter.setList(PanelLayout.BUTTON_OPTIONS);
             }
+            viewModel.setVisible(panel.type);
         });
 
         //viewModel.radioGroup.clearCheck();
@@ -173,29 +167,25 @@ public class PanelFragment extends AbsFragment {
         String height = viewModel.et_height.getText().toString().trim();
         if(!TextUtils.isEmpty(width)){
             panel.width = Integer.parseInt(width);
+            if(panel.height < 10) {
+                panel.height = panel.height * 100;
+            }
+            if(panel.height < 100) {
+                panel.height = 100;
+            }
         }
         if(!TextUtils.isEmpty(height)){
             panel.height = Integer.parseInt(height);
+            if(panel.height < 10) {
+                panel.height = panel.height * 100;
+            }
+            if(panel.height < 100) {
+                panel.height = 100;
+            }
         }
         panel.on = viewModel.et_cmd_on.getText().toString().trim();
         panel.off = viewModel.et_cmd_off.getText().toString().trim();
         panel.payload = viewModel.et_payload.getText().toString().trim();
-    }
-
-    private void setVisible(int type){
-        switch(type){
-            case 1:
-                viewModel.row_payload.setVisibility(View.GONE);
-                viewModel.row_on_off.setVisibility(View.VISIBLE);
-                break;
-            case 2:
-                viewModel.row_on_off.setVisibility(View.GONE);
-                viewModel.row_payload.setVisibility(View.GONE);
-                break;
-            default:
-                viewModel.row_payload.setVisibility(View.VISIBLE);
-                viewModel.row_on_off.setVisibility(View.GONE);
-        }
     }
 
     private void save(){
@@ -204,8 +194,8 @@ public class PanelFragment extends AbsFragment {
         if(TextUtils.isEmpty(panel.name)){
             alert("面板名称不能为空");
             return;
-        }else if(panel.name.length()<4 || panel.name.length()>20){
-            Utils.alert(getContext(),"面板名称要求 4 - 20 个字符");
+        }else if(panel.name.length()<2 || panel.name.length()>20){
+            Utils.alert(getContext(),"面板名称要求 2 - 20 个字符");
             return;
         }
         if(TextUtils.isEmpty(panel.title)){
@@ -213,7 +203,9 @@ public class PanelFragment extends AbsFragment {
             return;
         }
 
-        int maxWidth = Utils.getScreenSize(getContext()).getWidth();
+        //int maxWidth = Utils.getScreenWidth(requireContext());
+        Size screenSize = Utils.getScreenSize(requireContext());
+        int maxWidth = screenSize.getWidth();
         if(panel.width>maxWidth){
             alert("宽度不能超过手机屏幕宽度 " + maxWidth);
             return;
@@ -224,10 +216,10 @@ public class PanelFragment extends AbsFragment {
         }
 
         if(PanelHelper.save(panel)){
-            Navigation.findNavController(getView()).navigateUp();
-            Utils.showToast("保存成功");
+            Navigation.findNavController(requireView()).navigateUp();
+            showToast("保存成功");
         }else{
-            Utils.showToast("保存失败");
+            showToast("保存失败");
         }
     }
 
@@ -253,6 +245,7 @@ public class PanelFragment extends AbsFragment {
             hasError = false;
         }
 
+        @SuppressLint("SetTextI18n")
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
            if(maxLength>0 && s.length() == maxLength){
@@ -263,7 +256,7 @@ public class PanelFragment extends AbsFragment {
         @Override
         public void afterTextChanged(Editable s) {
             if(s.length() == 0){
-                Utils.showToast(message);
+                showToast(message);
                 mView.requestFocus();
                 viewModel.tv_error.setText(message);
                 hasError = true;

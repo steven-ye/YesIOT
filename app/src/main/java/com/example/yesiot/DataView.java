@@ -27,7 +27,7 @@ public abstract class DataView extends View {
     protected String mUnit="℃";
     protected float mMaxValue=180;
     protected final int mTextColor;
-    protected float mTextSize = 0;
+    protected float mTextSize;
     protected float mUnitSize = 0;
     protected final float mRingWidth;
 
@@ -46,7 +46,7 @@ public abstract class DataView extends View {
     public DataView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr);
         mContext = context;
-        @SuppressLint("Recycle") TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.RingView);
+        @SuppressLint("CustomViewStyleable") TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.RingView);
         mTextColor = typedArray.getColor(R.styleable.RingView_textColor, Color.BLACK);
         mTextSize = typedArray.getDimension(R.styleable.RingView_textSize, 0);
         mRingWidth = typedArray.getDimension(R.styleable.RingView_ringWidth, 0);

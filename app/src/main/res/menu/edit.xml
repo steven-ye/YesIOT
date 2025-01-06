@@ -8,7 +8,7 @@
         android:title="@string/delete"
         app:showAsAction="always" />
     <item
-        android:id="@+id/action_save"
+        android:id="@+id/action_lock"
         android:orderInCategory="101"
         android:icon="@drawable/ic_baseline_save_24"
         android:title="@string/save"

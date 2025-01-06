@@ -7,7 +7,7 @@
     android:gravity="center"
     android:padding="10dp"
     android:orientation="vertical"
-    tools:context=".ui.dialog.DeviceDialog">
+    tools:context=".dialog.DeviceDialog">
 
     <Button
         android:id="@+id/add_device"

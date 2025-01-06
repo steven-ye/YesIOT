@@ -6,23 +6,14 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-import com.example.yesiot.IApplication;
-import com.example.yesiot.object.Constants;
-import com.example.yesiot.util.IPUtils;
-import com.example.yesiot.util.Utils;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by wujn on 2019/2/15.
@@ -49,19 +40,23 @@ public class UdpClient {
             mSocket = new DatagramSocket(null);
             mSocket.setReuseAddress(true);
             mSocket.bind(new InetSocketAddress(mPort));
-            mSocket.setSoTimeout(mTimeout);
+            if(mTimeout>0)mSocket.setSoTimeout(mTimeout);
         }
     }
 
     private class SendThread extends Thread{
         private final String ip;
         private final int port;
-        private final String message;
+        private final byte[] buffer;
+        private int times = 1;
 
-        public SendThread(String ip, int port, String message){
+        public SendThread(String ip, int port, byte[] message){
             this.ip = ip;
             this.port = port;
-            this.message = message;
+            this.buffer = message;
+        }
+        public void setTimes(int times){
+            this.times = times;
         }
         @Override
         public void run() {
@@ -69,9 +64,22 @@ public class UdpClient {
                 sleep(100); //ensure ReceiveThread is running;
                 initSocket();
                 InetAddress ipAddress = InetAddress.getByName(ip);
-                byte[] mBuffer = message.getBytes();
-                DatagramPacket sendPacket = new DatagramPacket(mBuffer, mBuffer.length, ipAddress, port);
-                mSocket.send(sendPacket);
+                DatagramPacket sendPacket = new DatagramPacket(buffer, buffer.length, ipAddress, port);
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        try {
+                            //发送心跳的业务代码
+                            mSocket.send(sendPacket);
+                            times--;
+                            if(times <= 0) timer.cancel();
+                        } catch (Exception e) {
+                            //print the error log
+                            e.printStackTrace();
+                        }
+                    }
+                }, 500L, 500L);
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
                 uiHandler.sendEmptyMessage(ON_ERROR);
@@ -91,8 +99,8 @@ public class UdpClient {
             connected = true;
             try {
                 initSocket();
-                //if(mSocket==null) mSocket = new DatagramSocket(port);
-                //if(timeout>0)mSocket.setSoTimeout(timeout);
+                //if(mSocket==null) mSocket = new DatagramSocket(mPort);
+                //if(mTimeout>0)mSocket.setSoTimeout(mTimeout);
                 while(connected){
                     byte[] preBuffer = new byte[1024]; //预存buffer
                     //接受
@@ -153,7 +161,7 @@ public class UdpClient {
             mSocket = null;
         }
         if (mReceiveThread != null) {
-            mReceiveThread.interrupt();//not intime destory thread,so need a flag
+            mReceiveThread.interrupt();//not in-time destroy thread,so need a flag
         }
     }
 
@@ -165,12 +173,28 @@ public class UdpClient {
     }
 
     public void send(String ip, int port, String message){
+        send(ip,port,message.getBytes(), 1);
+    }
+
+    public void send(String ip, int port, String message, int n){
+        send(ip,port,message.getBytes(), n);
+    }
+
+    public void send(String ip, int port, byte[] message){
+        send(ip,port,message, 1);
+    }
+    public void send(String ip, int port, byte[] message, int n){
         SendThread sendThread = new SendThread(ip,port,message);
+        sendThread.setTimes(n);
         sendThread.start();
     }
 
     public void broadcast(int port, String message){
         send(BROAD_IP, port, message);
+    }
+
+    public void broadcast(int port, String message, int n){
+        send(BROAD_IP, port, message, n);
     }
 
     Handler uiHandler = new Handler(Looper.getMainLooper()) {
